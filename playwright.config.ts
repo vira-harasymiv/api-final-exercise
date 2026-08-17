@@ -1,11 +1,12 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
+import "dotenv/config";
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   fullyParallel: false,
   retries: 0,
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
   },
-  reporter: [['html', { open: 'never' }]],
+  reporter: [["html", { open: "never" }]],
 });
