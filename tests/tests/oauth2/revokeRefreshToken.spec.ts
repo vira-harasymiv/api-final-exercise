@@ -1,6 +1,6 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
-import { passwordGrantPayload } from "../oauth2/testData/payloads";
+import { passwordGrantPayload } from "./testData/payloads";
 import {
   checkAcceptEncodingHeaders,
   checkMandatoryHeaders,
