@@ -1,18 +1,30 @@
 import { APIResponse, expect, test } from "@playwright/test";
 import { z, ZodType } from "zod";
 
-async function checkMandatoryHeaders(response: APIResponse) {
+async function generalHeaders(response: APIResponse) {
+  const headers = response.headers();
+  expect.soft(headers["connection"]).toBe("keep-alive");
+  expect.soft(headers["content-type"]).toBe("application/json");
+  expect.soft(headers["date"]).toBeTruthy();
+  expect.soft(headers["transfer-encoding"]).toBe("chunked");
+}
+export async function checkMandatoryHeaders(response: APIResponse) {
   await test.step("Verify headers", async () => {
     const headers = response.headers();
-    expect.soft(headers["connection"]).toBe("keep-alive");
-    expect.soft(headers["content-type"]).toBe("application/json");
-    expect.soft(headers["date"]).toBeTruthy();
-    expect.soft(headers["transfer-encoding"]).toBe("chunked");
+    await generalHeaders(response);
     expect
       .soft(headers["vary"])
       .toBe(
         "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
       );
+  });
+}
+
+export async function checkAcceptEncodingHeaders(response: APIResponse) {
+  await test.step("Verify headers", async () => {
+    const headers = response.headers();
+    await generalHeaders(response);
+    expect.soft(headers["vary"]).toBe("Accept-Encoding");
   });
 }
 
@@ -104,7 +116,7 @@ export async function checkUnauthorizedRefreshTokenError(
   });
 }
 
-async function checkOKResponse(response: APIResponse) {
+export async function checkOKResponse(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is 200 OK", async () => {
     expect(response.status()).toBe(200);

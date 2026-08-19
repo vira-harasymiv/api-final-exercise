@@ -1,7 +1,6 @@
 import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
-  checkBadRequest,
   checkSuccessfulTokenResponse,
   checkSchema,
   checkInvalidGrantType,
