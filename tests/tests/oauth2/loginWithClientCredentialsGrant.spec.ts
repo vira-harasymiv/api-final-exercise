@@ -10,7 +10,7 @@ import {
   invalidDataTypesForCredentials,
   invalidCasesForClientCredentialsGrant,
   invalidDataTypes,
-} from "../oauth2/testData/testData";
+} from "./testData/testData";
 import { tokenResponseSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Positive smoke tests for taking token with Client Credentials Grant

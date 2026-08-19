@@ -15,7 +15,7 @@ import {
   invalidDataTypes,
   testDataForInvalidEmail,
   invalidDataTypesForPassword,
-} from "../oauth2/testData/testData";
+} from "./testData/testData";
 import { tokenResponseWithRefreshTokenSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Positive smoke tests for taking token with Password Grant
