@@ -5,9 +5,11 @@ import {
   request as APIRequest,
 } from "@playwright/test";
 import { promises } from "fs";
+import { faker } from "@faker-js/faker";
 
 type myFixture = {
   isAuthorized: boolean;
+  randomString: string;
 };
 
 export const test = base.extend<myFixture>({
@@ -17,13 +19,18 @@ export const test = base.extend<myFixture>({
       const accessToken = await getAccessToken(request);
       const req = await APIRequest.newContext({
         extraHTTPHeaders: {
-          Authorization: "Bearer " + accessToken,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
       await use(req);
     } else {
       await use(request);
     }
+  },
+  randomString: async ({}, use) => {
+    const random = Math.floor(Math.random() * 1_000_000);
+    const title = faker.lorem.word({ length: 5 }) + random;
+    await use(random + title);
   },
 });
 
@@ -34,7 +41,7 @@ async function getAccessToken(request: APIRequestContext) {
       encoding: "utf-8",
     });
     const isValid = await isAccessTokenValid(request, accessToken);
-    expect(isValid).toBeTruthy;
+    expect(isValid).toBeTruthy();
   } catch (error) {
     const response = await request.post("/api/oauth/token", {
       data: {
@@ -57,7 +64,7 @@ async function isAccessTokenValid(
 ) {
   const response = await request.get("/api/oauth/userinfo", {
     headers: {
-      Authorization: "Bearer" + accessToken,
+      Authorization: `Bearer ${accessToken}`,
     },
     failOnStatusCode: false,
   });
