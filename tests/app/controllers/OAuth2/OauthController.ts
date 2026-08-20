@@ -1,5 +1,5 @@
-import { BaseController } from "./BaseController";
-import { Endpoints } from "../utils/Endpoints";
+import { BaseController } from "../Base/BaseController";
+import { Endpoints } from "../../utils/Endpoints";
 
 export class OauthController extends BaseController {
   private tokenEndpoint = Endpoints.tokenEndpoint;

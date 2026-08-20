@@ -1,7 +1,7 @@
 import { APIRequestContext } from "@playwright/test";
-import { OauthController } from "./OauthController";
-import { RevokeController } from "./RevokeController";
-import { RegisterClientController } from "./RegisterClientController";
+import { OauthController } from "../OAuth2/OauthController";
+import { RevokeController } from "../OAuth2/RevokeController";
+import { RegisterClientController } from "../OAuth2/RegisterClientController";
 
 export class ApiClient {
   private oauthController: OauthController;
@@ -42,7 +42,6 @@ export class ApiClient {
     const jsonCreate = await responseCreate.json();
     const clientId = jsonCreate.clientId;
     const clientSecret = jsonCreate.clientSecret;
-    const id = jsonCreate.id;
 
     const response = await this.oauthController.withClientIdAndSecret(
       {

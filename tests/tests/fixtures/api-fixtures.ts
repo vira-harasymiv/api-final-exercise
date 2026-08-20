@@ -1,10 +1,10 @@
 import { test as base } from "../fixtures/fixture";
-import { OauthController } from "../../app/controllers/OauthController";
-import { AuthController } from "../../app/controllers/AuthController";
-import { RegisterClientController } from "../../app/controllers/RegisterClientController";
-import { RevokeController } from "../../app/controllers/RevokeController";
-import { ApiClient } from "../../app/controllers/ApiClient";
-import { UserInfoController } from "../../app/controllers/UseInfoController";
+import { OauthController } from "../../app/controllers/OAuth2/OauthController";
+import { AuthController } from "../../app/controllers/Auth/AuthController";
+import { RegisterClientController } from "../../app/controllers/OAuth2/RegisterClientController";
+import { RevokeController } from "../../app/controllers/OAuth2/RevokeController";
+import { ApiClient } from "../../app/controllers/Base/ApiClient";
+import { UserInfoController } from "../../app/controllers/OAuth2/UseInfoController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {

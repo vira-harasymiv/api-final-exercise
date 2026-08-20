@@ -1,5 +1,5 @@
-import { BaseController } from "./BaseController";
-import { Endpoints } from "../utils/Endpoints";
+import { BaseController } from "../Base/BaseController";
+import { Endpoints } from "../../utils/Endpoints";
 
 export class RegisterClientController extends BaseController {
   private registerEndpoint = Endpoints.registerClient;
