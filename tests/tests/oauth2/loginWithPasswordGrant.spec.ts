@@ -2,7 +2,6 @@ import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
   checkSuccessfulTokenResponse,
-  checkBadRequest,
   checkSchema,
   checkInvalidGrantType,
 } from "../../app/utils/expect-helpers";

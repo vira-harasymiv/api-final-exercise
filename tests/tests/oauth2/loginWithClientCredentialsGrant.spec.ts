@@ -20,10 +20,10 @@ test.describe(
     let clientId: string;
     let clientSecret: string;
 
-    test.beforeEach(async ({ registerClient, randomString }) => {
+    test.beforeEach(async ({ clientsController, randomString }) => {
       const responseCreate =
         await test.step("Create a new client", async () => {
-          return registerClient.createClient(
+          return clientsController.createClient(
             {
               name: randomString,
               grants: ["client_credentials"],
@@ -109,10 +109,10 @@ test.describe(
     let clientSecret: string;
     let clientCredentialsPayload: Object;
 
-    test.beforeEach(async ({ registerClient, randomString }) => {
+    test.beforeEach(async ({ clientsController, randomString }) => {
       const responseCreate =
         await test.step("Create a new client", async () => {
-          return registerClient.createClient(
+          return clientsController.createClient(
             {
               name: randomString,
               grants: ["client_credentials"],

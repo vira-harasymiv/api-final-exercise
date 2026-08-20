@@ -1,8 +1,8 @@
 import { BaseController } from "../Base/BaseController";
 import { Endpoints } from "../../utils/Endpoints";
 
-export class RegisterClientController extends BaseController {
-  private registerEndpoint = Endpoints.registerClient;
+export class ClientsController extends BaseController {
+  private clientsEndpoint = Endpoints.clientsEndpoint;
 
   //POST request to create a new client)
   async createClient(
@@ -16,11 +16,19 @@ export class RegisterClientController extends BaseController {
       failOnStatusCode?: boolean;
     },
   ) {
-    const response = await this.request.post(this.registerEndpoint, {
+    const response = await this.request.post(this.clientsEndpoint, {
       data: data,
       headers: options?.headers,
       failOnStatusCode: options?.failOnStatusCode,
     });
     return response;
+  }
+
+  //GET request to get all clients
+  async getClients(options?: {
+    headers?: { Authorization?: string };
+    failOnStatusCode?: boolean;
+  }) {
+    return await this.request.get(this.clientsEndpoint);
   }
 }

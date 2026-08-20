@@ -132,6 +132,14 @@ export async function checkOKResponse(response: APIResponse) {
   });
 }
 
+export async function checkCreatedResponse(response: APIResponse) {
+  await checkMandatoryHeaders(response);
+  await test.step("Verify if the status Code is 201 Created", async () => {
+    expect(response.status()).toBe(201);
+    expect(response.statusText()).toBe("Created");
+  });
+}
+
 export async function checkSuccessfulTokenResponse(
   response: APIResponse,
   options: { expectRefreshToken: boolean },
