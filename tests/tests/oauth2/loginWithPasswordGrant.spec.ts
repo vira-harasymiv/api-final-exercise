@@ -10,11 +10,11 @@ import {
   passwordGrantPayloadWithScope,
 } from "./testData/payloads";
 import {
-  invalidCasesForPasswordGrant,
   invalidDataTypes,
   testDataForInvalidEmail,
   invalidDataTypesForPassword,
 } from "./testData/testData";
+import { invalidCasesForPasswordGrant } from "./testData/testDataNegativeCases";
 import { tokenResponseWithRefreshTokenSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Positive smoke tests for taking token with Password Grant

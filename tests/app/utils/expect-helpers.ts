@@ -140,6 +140,14 @@ export async function checkCreatedResponse(response: APIResponse) {
   });
 }
 
+export async function checkForbiddenResponse(response: APIResponse) {
+  await checkMandatoryHeaders(response);
+  await test.step("Verify if the status Code is  403 Forbidden", async () => {
+    expect(response.status()).toBe(403);
+    expect(response.statusText()).toBe("Forbidden");
+  });
+}
+
 export async function checkSuccessfulTokenResponse(
   response: APIResponse,
   options: { expectRefreshToken: boolean },

@@ -8,10 +8,10 @@ import {
 } from "../../app/utils/expect-helpers";
 import { passwordGrantPayload } from "./testData/payloads";
 import {
-  invalidCasesForRefreshTokenGrant,
   invalidDataTypes,
   invalidDataTypesForCredentials,
 } from "./testData/testData";
+import { invalidCasesForRefreshTokenGrant } from "./testData/testDataNegativeCases";
 import { tokenResponseSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Positive smoke tests for taking token with Refresh Token Grant

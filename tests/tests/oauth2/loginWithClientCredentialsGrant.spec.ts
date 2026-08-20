@@ -7,9 +7,9 @@ import {
 } from "../../app/utils/expect-helpers";
 import {
   invalidDataTypesForCredentials,
-  invalidCasesForClientCredentialsGrant,
   invalidDataTypes,
 } from "./testData/testData";
+import { invalidCasesForClientCredentialsGrant } from "./testData/testDataNegativeCases";
 import { tokenResponseSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Positive smoke tests for taking token with Client Credentials Grant
