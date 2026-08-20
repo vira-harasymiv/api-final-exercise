@@ -28,6 +28,18 @@ test.describe(
       },
     );
 
+    test.afterAll(
+      "Deactivate the created client",
+      async ({ clientsController }) => {
+        await test.step("Delete the created client", async () => {
+          await clientsController.deactivateClient({
+            clientId: clientId,
+            failOnStatusCode: true,
+          });
+        });
+      },
+    );
+
     test("Verify getting USER info", async ({ userInfoController }) => {
       const response =
         await test.step("Get info about the authorized user", async () => {

@@ -37,6 +37,18 @@ test.describe(
       clientSecret = jsonCreate.clientSecret;
     });
 
+    test.afterEach(
+      "Deactivate the created client",
+      async ({ clientsController }) => {
+        await test.step("Delete the created client", async () => {
+          await clientsController.deactivateClient({
+            clientId: clientId,
+            failOnStatusCode: true,
+          });
+        });
+      },
+    );
+
     test("Verify taking token with Client Credentials Grant and only required fields", async ({
       oauthController,
     }) => {
@@ -131,6 +143,18 @@ test.describe(
         grant_type: "client_credentials",
       };
     });
+
+    test.afterEach(
+      "Deactivate the created clients",
+      async ({ clientsController }) => {
+        await test.step("Delete the prepared test data", async () => {
+          await clientsController.deactivateClient({
+            clientId: clientId,
+            failOnStatusCode: true,
+          });
+        });
+      },
+    );
 
     for (const {
       title,

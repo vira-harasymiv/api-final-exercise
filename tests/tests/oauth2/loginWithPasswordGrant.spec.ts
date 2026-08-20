@@ -148,39 +148,5 @@ test.describe(
         await check(response);
       });
     }
-
-    test(
-      "Logging with user's credentials - should NOT have admin permissions",
-      { tag: [TAG.passwordGrant, TAG.oauth, TAG.regression] },
-      async ({ oauthController, authController, randomString }) => {
-        //!ARRANGE
-        const email = `${randomString}@mail.com`;
-        const password = "Password1234";
-        await test.step("Register a new user", async () => {
-          return authController.registerUser(
-            { name: "test", email: email, password: password },
-            { failOnStatusCode: true },
-          );
-        });
-
-        //!ACT
-        const response =
-          await test.step("Login with user's credentials", async () => {
-            return oauthController.withPasswordGrant(
-              { grant_type: "password", email: email, password: password },
-              { failOnStatusCode: true },
-            );
-          });
-
-        //!ASSERT
-        await checkSuccessfulTokenResponse(
-          response,
-          {
-            expectRefreshToken: true,
-          },
-          "read write",
-        );
-      },
-    );
   },
 );

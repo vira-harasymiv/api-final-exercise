@@ -50,4 +50,20 @@ export class ClientsController extends BaseController {
   }) {
     return await this.request.get(this.clientsEndpoint);
   }
+
+  //Deactivate client by ID
+  async deactivateClient(options?: {
+    headers?: { Authorization?: string };
+    clientId?: string | any;
+    failOnStatusCode?: boolean;
+  }) {
+    const response = await this.request.delete(
+      `${this.clientsEndpoint}/${options?.clientId}`,
+      {
+        headers: options?.headers,
+        failOnStatusCode: options?.failOnStatusCode,
+      },
+    );
+    return response;
+  }
 }
