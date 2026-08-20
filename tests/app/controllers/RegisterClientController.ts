@@ -1,7 +1,7 @@
 import { BaseController } from "./BaseController";
 import { Endpoints } from "../utils/Endpoints";
 
-export class RegisterClient extends BaseController {
+export class RegisterClientController extends BaseController {
   private registerEndpoint = Endpoints.registerClient;
 
   //POST request to create a new client)

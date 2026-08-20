@@ -1,17 +1,19 @@
 import { test as base } from "../fixtures/fixture";
 import { OauthController } from "../../app/controllers/OauthController";
 import { AuthController } from "../../app/controllers/AuthController";
-import { RegisterClient } from "../../app/controllers/RegisterClient";
+import { RegisterClientController } from "../../app/controllers/RegisterClientController";
 import { RevokeController } from "../../app/controllers/RevokeController";
 import { ApiClient } from "../../app/controllers/ApiClient";
+import { UserInfoController } from "../../app/controllers/UseInfoController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {
   oauthController: OauthController;
   authController: AuthController;
-  registerClient: RegisterClient;
+  registerClient: RegisterClientController;
   revokeController: RevokeController;
   apiClient: ApiClient;
+  userInfoController: UserInfoController;
 };
 
 export const test = base.extend<Fixtures>({
@@ -24,7 +26,7 @@ export const test = base.extend<Fixtures>({
   },
 
   registerClient: async ({ request }, use) => {
-    await use(new RegisterClient(request));
+    await use(new RegisterClientController(request));
   },
 
   revokeController: async ({ request }, use) => {
@@ -33,5 +35,9 @@ export const test = base.extend<Fixtures>({
 
   apiClient: async ({ request }, use) => {
     await use(new ApiClient(request));
+  },
+
+  userInfoController: async ({ request }, use) => {
+    await use(new UserInfoController(request));
   },
 });

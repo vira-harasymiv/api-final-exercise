@@ -6,6 +6,7 @@ import {
   checkMandatoryHeaders,
   checkOKResponse,
   checkUnauthorizedRefreshTokenError,
+  checkUnauthorizedStatusCode,
 } from "../../app/utils/expect-helpers";
 import { invalidDataTypes } from "./testData/testData";
 
@@ -67,6 +68,7 @@ test.describe(
 );
 
 //Negative tests for checking the refresh token revoking
+//! For token = boolean and number - 500 Error is received
 test.describe(
   "POST /token - Revoke refresh token: negative scenarios",
   {
@@ -107,7 +109,7 @@ test.describe(
 test.describe(
   "POST /token - Revoke refresh token: negative scenarios",
   {
-    tag: [TAG.oauth, TAG.negative, TAG.regression],
+    tag: [TAG.oauth, TAG.negative, TAG.smoke],
   },
   () => {
     test.use({ isAuthorized: false });
@@ -121,11 +123,7 @@ test.describe(
             token: "any token",
           });
         });
-      const json = await response.json();
-      await checkAcceptEncodingHeaders(response);
-      expect(response.status()).toBe(401);
-      expect(response.statusText()).toBe("Unauthorized");
-      expect(json.error).toBe("Unauthorized");
+      await checkUnauthorizedStatusCode(response);
     });
   },
 );

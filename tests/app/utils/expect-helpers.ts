@@ -81,6 +81,14 @@ export async function checkInvalidGrantType(response: APIResponse) {
   });
 }
 
+export async function checkUnauthorizedStatusCode(response: APIResponse) {
+  const json = await response.json();
+  await checkAcceptEncodingHeaders(response);
+  expect(response.status()).toBe(401);
+  expect(response.statusText()).toBe("Unauthorized");
+  expect(json.error).toBe("Unauthorized");
+}
+
 export async function checkUnauthorizedError(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify Unauthorized error receiving", async () => {
