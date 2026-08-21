@@ -29,7 +29,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Take token with using Password Grant and only required fields", async () => {
-          return oauthController.withPasswordGrant(passwordGrantPayload, {
+          return await oauthController.withPasswordGrant(passwordGrantPayload, {
             failOnStatusCode: true,
           });
         });
@@ -53,7 +53,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Take token with using Password Grant and optional scope field", async () => {
-          return oauthController.withPasswordGrant(
+          return await oauthController.withPasswordGrant(
             passwordGrantPayloadWithScope,
             { failOnStatusCode: true },
           );
@@ -90,7 +90,7 @@ test.describe(
     } of invalidCasesForPasswordGrant) {
       test(title, async ({ oauthController }) => {
         const response = await test.step(stepLabel, async () => {
-          return oauthController.withPasswordGrant(payload, {
+          return await oauthController.withPasswordGrant(payload, {
             failOnStatusCode: false,
           });
         });
@@ -109,7 +109,7 @@ test.describe(
 
         const response =
           await test.step(`Login with grant data type = ${dataType}`, async () => {
-            return oauthController.withInvalidPasswordGrant(payload);
+            return await oauthController.withInvalidPasswordGrant(payload);
           });
         await checkInvalidGrantType(response);
       });
@@ -126,7 +126,7 @@ test.describe(
 
         const response =
           await test.step(`Login with invalid email = ${dataType}`, async () => {
-            return oauthController.withInvalidPasswordGrant(payload);
+            return await oauthController.withInvalidPasswordGrant(payload);
           });
         await check(response);
       });
@@ -143,7 +143,7 @@ test.describe(
 
         const response =
           await test.step(`Login with invalid password = ${dataType}`, async () => {
-            return oauthController.withInvalidPasswordGrant(payload);
+            return await oauthController.withInvalidPasswordGrant(payload);
           });
         await check(response);
       });

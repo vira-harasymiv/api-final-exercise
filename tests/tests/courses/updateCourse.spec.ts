@@ -2,8 +2,11 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import { CourseBuilder } from "../../app/utils/builders/CourseBuilder";
 import {
+  checkBadStatusCode,
+  checkForbiddenStatusCode,
   checkOKStatusCode,
   checkSchema,
+  checkUnauthorizedStatusCode,
 } from "../../app/utils/general-expect-helpers";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
@@ -22,7 +25,7 @@ test.describe(
       async ({ coursesController, categoriesController }) => {
         const responseCourseCreate =
           await test.step("Create a new resource", async () => {
-            return coursesController.createCourse(
+            return await coursesController.createCourse(
               { title: courseTitle },
               { failOnStatusCode: true },
             );
@@ -32,7 +35,7 @@ test.describe(
 
         const responseCategoryCreate =
           await test.step("Create a new category", async () => {
-            return categoriesController.createCategory(
+            return await categoriesController.createCategory(
               { name: categoryName },
               { failOnStatusCode: true },
             );
@@ -46,12 +49,12 @@ test.describe(
       "Delete the created course and category",
       async ({ coursesController, categoriesController }) => {
         await test.step("Delete the created course", async () => {
-          coursesController.deleteCourseById(courseId, {
+          await coursesController.deleteCourseById(courseId, {
             failOnStatusCode: true,
           });
         });
         await test.step("Delete the created category", async () => {
-          categoriesController.deleteCategory(categoryId, {
+          await categoriesController.deleteCategory(categoryId, {
             failOnStatusCode: true,
           });
         });
@@ -74,7 +77,7 @@ test.describe(
         .build();
       const responseUpdate =
         await test.step("Update all properties of a course", async () => {
-          return coursesController.updateCourse(courseId, courseBuilder, {
+          return await coursesController.updateCourse(courseId, courseBuilder, {
             failOnStatusCode: true,
           });
         });
@@ -91,7 +94,7 @@ test.describe(
       await test.step("Verify if all properties were updated", async () => {
         const responseGet =
           await test.step("Get the updated course", async () => {
-            return coursesController.getCourseById(courseId, {
+            return await coursesController.getCourseById(courseId, {
               failOnStatusCode: true,
             });
           });
@@ -119,7 +122,7 @@ test.describe(
         .build();
       const responseUpdate =
         await test.step("Update several properties of a course", async () => {
-          return coursesController.updateCourse(courseId, courseBuilder, {
+          return await coursesController.updateCourse(courseId, courseBuilder, {
             failOnStatusCode: true,
           });
         });
@@ -136,7 +139,7 @@ test.describe(
       await test.step("Verify if properties were updated", async () => {
         const responseGet =
           await test.step("Get the updated course", async () => {
-            return coursesController.getCourseById(courseId, {
+            return await coursesController.getCourseById(courseId, {
               failOnStatusCode: true,
             });
           });
@@ -145,6 +148,165 @@ test.describe(
         expect.soft(categoryId).toBe(jsonGet.categories[0].id);
         expect.soft(categoryName).toBe(jsonGet.categories[0].name);
       });
+    });
+  },
+);
+
+//NEGATIVE tests for updating a course without admin permission or auth
+test.describe(
+  "PATCH /courses - Update a course without auth or admin permission - should be 401/403 error",
+  { tag: [TAG.negative, TAG.courses, TAG.smoke, TAG.regression] },
+  () => {
+    test.use({ isAuthorized: false });
+
+    let token: string;
+
+    test.beforeAll(
+      "Take token without admin permission",
+      async ({ apiClient }) => {
+        const result = await apiClient.loginWithCredentialsOfNewClient(
+          "new client",
+          ["read", "write"],
+        );
+        token = result.token;
+      },
+    );
+
+    test("Update a course without auth - should be 401 error", async ({
+      coursesController,
+    }) => {
+      const courseBuilder = new CourseBuilder().withPrice(100.0).build();
+      const responseUpdate =
+        await test.step("Update a course without auth", async () => {
+          return await coursesController.updateCourse(
+            "dsdsdsd",
+            courseBuilder,
+            {
+              failOnStatusCode: false,
+            },
+          );
+        });
+
+      await checkUnauthorizedStatusCode(responseUpdate);
+    });
+
+    test("Update a course without admin permission - should be 403 error", async ({
+      coursesController,
+    }) => {
+      const courseBuilder = new CourseBuilder().withPrice(100.0).build();
+      const responseUpdate =
+        await test.step("Update a course without admin permission", async () => {
+          return await coursesController.updateCourse("sdsdsd", courseBuilder, {
+            headers: { Authorization: `Bearer ${token}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkForbiddenStatusCode(responseUpdate);
+    });
+  },
+);
+
+//NEGATIVE tests for updating a course using invalid data and non-existing course ID
+test.describe(
+  "PATCH /courses/{courseId} - Update a course using invalid data",
+  { tag: [TAG.courses, TAG.negative, TAG.regression] },
+  () => {
+    const courseTitle = "New Course";
+    const categoryName = "New Category" + Math.floor(Math.random() * 1_000);
+    let courseId: string;
+    let categoryId: string;
+
+    test.beforeEach(
+      "Prepare test data: create the course and category",
+      async ({ coursesController, categoriesController }) => {
+        const responseCourseCreate =
+          await test.step("Create a new resource", async () => {
+            return await coursesController.createCourse(
+              { title: courseTitle },
+              { failOnStatusCode: true },
+            );
+          });
+        const jsonCourseCreate = await responseCourseCreate.json();
+        courseId = jsonCourseCreate.id;
+
+        const responseCategoryCreate =
+          await test.step("Create a new category", async () => {
+            return await categoriesController.createCategory(
+              { name: categoryName },
+              { failOnStatusCode: true },
+            );
+          });
+        const jsonCreateCategory = await responseCategoryCreate.json();
+        categoryId = jsonCreateCategory.id;
+      },
+    );
+
+    test.afterEach(
+      "Delete the created course and category",
+      async ({ coursesController, categoriesController }) => {
+        await test.step("Delete the created course", async () => {
+          await coursesController.deleteCourseById(courseId, {
+            failOnStatusCode: true,
+          });
+        });
+        await test.step("Delete the created category", async () => {
+          await categoriesController.deleteCategory(categoryId, {
+            failOnStatusCode: true,
+          });
+        });
+      },
+    );
+
+    //! Update course using non-existing category ID - 500 Error
+    test("Update course using non-existing category ID - should be error", async ({
+      coursesController,
+    }) => {
+      const courseBuilder = new CourseBuilder()
+        .withCategoryIds(["non-existing"])
+        .build();
+      const responseUpdate =
+        await test.step("Update course using non-existing category ID", async () => {
+          return await coursesController.updateCourse(courseId, courseBuilder, {
+            failOnStatusCode: false,
+          });
+        });
+
+      expect(responseUpdate.status()).toBeLessThan(500);
+    });
+
+    //! Update course using non-existing course ID - 500 Error
+    test("Update course using non-existing course ID - should be error", async ({
+      coursesController,
+    }) => {
+      const courseBuilder = new CourseBuilder().withPrice(10).build();
+      const responseUpdate =
+        await test.step("Update course using non-existing course ID", async () => {
+          return await coursesController.updateCourse(
+            "non-existing-id",
+            courseBuilder,
+            {
+              failOnStatusCode: false,
+            },
+          );
+        });
+
+      expect(responseUpdate.status()).toBeLessThan(500);
+    });
+
+    //! The course title can be updated to empty string
+    test("Update course title with empty string", async ({
+      coursesController,
+    }) => {
+      const courseBuilder = new CourseBuilder().withTitle("").build();
+      const responseUpdate =
+        await test.step("Update course title with 1 character - should be error", async () => {
+          return await coursesController.updateCourse(courseId, courseBuilder, {
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkBadStatusCode(responseUpdate);
     });
   },
 );

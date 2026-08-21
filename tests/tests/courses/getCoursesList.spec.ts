@@ -15,7 +15,7 @@ test.describe(
       coursesController,
     }) => {
       const response = await test.step("Get the list of courses", async () => {
-        return coursesController.getCourses({ failOnStatusCode: true });
+        return await coursesController.getCourses({ failOnStatusCode: true });
       });
       await checkOKStatusCode(response);
 

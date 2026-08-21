@@ -23,7 +23,7 @@ test.describe(
     test.beforeEach(async ({ oauthController }) => {
       const responseTakeToken =
         await test.step("Prepare refresh token by logging with Password Grant", async () => {
-          return oauthController.withPasswordGrant(passwordGrantPayload, {
+          return await oauthController.withPasswordGrant(passwordGrantPayload, {
             failOnStatusCode: true,
           });
         });
@@ -39,7 +39,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Post refresh token to revoke it", async () => {
-          return revokeController.revokeToken(
+          return await revokeController.revokeToken(
             { token: refreshToken },
             {
               headers: { Authorization: `Bearer ${token}` },
@@ -94,7 +94,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to revoke non-existing refresh token", async () => {
-          return revokeController.revokeInvalidToken({
+          return await revokeController.revokeInvalidToken({
             token: "dsdsdsdjskdjskd",
           });
         });
@@ -119,7 +119,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to revoke refresh token without authorization", async () => {
-          return revokeController.revokeToken({
+          return await revokeController.revokeToken({
             token: "any token",
           });
         });

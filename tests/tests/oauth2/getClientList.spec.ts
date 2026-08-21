@@ -17,7 +17,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Get all clients by the authorized admin", async () => {
-          return clientsController.getClients({ failOnStatusCode: true });
+          return await clientsController.getClients({ failOnStatusCode: true });
         });
 
       await checkOKStatusCode(response);
@@ -43,7 +43,9 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to get clients list using user token", async () => {
-          return clientsController.getClients({ failOnStatusCode: false });
+          return await clientsController.getClients({
+            failOnStatusCode: false,
+          });
         });
       await checkUnauthorizedStatusCode(response);
     });

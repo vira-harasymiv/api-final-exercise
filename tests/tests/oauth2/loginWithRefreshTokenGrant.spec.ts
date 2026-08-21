@@ -26,7 +26,7 @@ test.describe(
     test.beforeEach(async ({ oauthController }) => {
       const responseTakeToken =
         await test.step("Prepare refresh token by logging with Password Grant", async () => {
-          return oauthController.withPasswordGrant(passwordGrantPayload, {
+          return await oauthController.withPasswordGrant(passwordGrantPayload, {
             failOnStatusCode: true,
           });
         });
@@ -39,7 +39,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Take token with using Refresh Token Grant", async () => {
-          return oauthController.withRefreshTokenGrant(
+          return await oauthController.withRefreshTokenGrant(
             {
               grant_type: "refresh_token",
               refresh_token: refreshToken,
@@ -77,7 +77,7 @@ test.describe(
     test.beforeEach(async ({ oauthController }) => {
       const responseTakeToken =
         await test.step("Prepare refresh token by logging with Password Grant", async () => {
-          return oauthController.withPasswordGrant(passwordGrantPayload, {
+          return await oauthController.withPasswordGrant(passwordGrantPayload, {
             failOnStatusCode: true,
           });
         });
@@ -93,10 +93,15 @@ test.describe(
       checkError,
     } of invalidCasesForRefreshTokenGrant) {
       test(title, async ({ oauthController }) => {
-        const response = await test.step(stepLabel, async () =>
-          oauthController.withRefreshTokenGrant(buildPayload(refreshToken), {
-            failOnStatusCode: false,
-          }),
+        const response = await test.step(
+          stepLabel,
+          async () =>
+            await oauthController.withRefreshTokenGrant(
+              buildPayload(refreshToken),
+              {
+                failOnStatusCode: false,
+              },
+            ),
         );
         await checkError(response);
       });
@@ -113,7 +118,7 @@ test.describe(
 
         const response =
           await test.step(`Take token with grant type = ${dataType}`, async () => {
-            return oauthController.withRefreshTokenGrant(payload as any, {
+            return await oauthController.withRefreshTokenGrant(payload as any, {
               failOnStatusCode: false,
             });
           });
@@ -132,7 +137,7 @@ test.describe(
 
         const response =
           await test.step(`Take token with refresh token = ${dataType}`, async () => {
-            return oauthController.withRefreshTokenGrant(payload as any, {
+            return await oauthController.withRefreshTokenGrant(payload as any, {
               failOnStatusCode: false,
             });
           });
@@ -145,7 +150,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Login with using access token instead of refresh token", async () => {
-          return oauthController.withRefreshTokenGrant(
+          return await oauthController.withRefreshTokenGrant(
             {
               grant_type: "refresh_token",
               refresh_token: token,

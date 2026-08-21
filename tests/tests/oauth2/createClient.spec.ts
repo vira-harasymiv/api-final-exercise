@@ -25,7 +25,7 @@ test.describe(
         const name = randomString;
 
         const response = await test.step(stepLabel, async () => {
-          return clientsController.createClient(buildPayload(name), {
+          return await clientsController.createClient(buildPayload(name), {
             failOnStatusCode: true,
           });
         });
@@ -63,7 +63,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to create a new client without auth", async () => {
-          return clientsController.createClient({ name: "test" });
+          return await clientsController.createClient({ name: "test" });
         });
       await checkUnauthorizedStatusCode(response);
     });
@@ -81,7 +81,7 @@ test.describe(
 
         const response =
           await test.step("Try to create a new client with READ permission", async () => {
-            return clientsController.createClient(
+            return await clientsController.createClient(
               { name: "test" },
               {
                 headers: { Authorization: `Bearer ${token}` },

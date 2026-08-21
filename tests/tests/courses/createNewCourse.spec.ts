@@ -22,7 +22,7 @@ test.describe(
       "Delete the created course",
       async ({ coursesController }) => {
         await test.step("Delete the created course", async () => {
-          coursesController.deleteCourseById(courseId, {
+          await coursesController.deleteCourseById(courseId, {
             failOnStatusCode: true,
           });
         });
@@ -33,7 +33,7 @@ test.describe(
       coursesController,
     }) => {
       const response = await test.step("Create a new course", async () => {
-        return coursesController.createCourse(
+        return await coursesController.createCourse(
           { title: title },
           { failOnStatusCode: true },
         );

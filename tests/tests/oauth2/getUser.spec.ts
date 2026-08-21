@@ -42,7 +42,7 @@ test.describe(
     test("Verify getting USER info", async ({ userInfoController }) => {
       const response =
         await test.step("Get info about the authorized user", async () => {
-          return userInfoController.getUserInfo({
+          return await userInfoController.getUserInfo({
             headers: { Authorization: `Bearer ${token}` },
             failOnStatusCode: true,
           });
@@ -59,7 +59,9 @@ test.describe(
     test("Verify getting ADMIN info", async ({ userInfoController }) => {
       const response =
         await test.step("Get info about the authorized admin", async () => {
-          return userInfoController.getUserInfo({ failOnStatusCode: true });
+          return await userInfoController.getUserInfo({
+            failOnStatusCode: true,
+          });
         });
       await checkOKStatusCode(response);
       await test.step("Verify response properties", async () => {
@@ -82,7 +84,9 @@ test.describe(
     test("Verify getting user's info", async ({ userInfoController }) => {
       const response =
         await test.step("Get info by the non-authorized user", async () => {
-          return userInfoController.getUserInfo({ failOnStatusCode: false });
+          return await userInfoController.getUserInfo({
+            failOnStatusCode: false,
+          });
         });
 
       await checkUnauthorizedStatusCode(response);

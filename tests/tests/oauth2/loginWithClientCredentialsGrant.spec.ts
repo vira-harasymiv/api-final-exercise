@@ -23,7 +23,7 @@ test.describe(
     test.beforeEach(async ({ clientsController, randomString }) => {
       const responseCreate =
         await test.step("Create a new client", async () => {
-          return clientsController.createClient(
+          return await clientsController.createClient(
             {
               name: randomString,
               grants: ["client_credentials"],
@@ -53,7 +53,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Take token with using Client Credentials Grant and only required fields", async () => {
-          return oauthController.withClientIdAndSecret(
+          return await oauthController.withClientIdAndSecret(
             {
               grant_type: "client_credentials",
               client_id: clientId,
@@ -82,7 +82,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Take token with using Client Credentials Grant and only required fields", async () => {
-          return oauthController.withClientIdAndSecret(
+          return await oauthController.withClientIdAndSecret(
             {
               grant_type: "client_credentials",
               client_id: clientId,
@@ -161,13 +161,15 @@ test.describe(
       checkError,
     } of invalidCasesForClientCredentialsGrant) {
       test(title, async ({ oauthController }) => {
-        const response = await test.step(stepLabel, async () =>
-          oauthController.withClientIdAndSecret(
-            buildPayload(clientId, clientSecret),
-            {
-              failOnStatusCode: false,
-            },
-          ),
+        const response = await test.step(
+          stepLabel,
+          async () =>
+            await oauthController.withClientIdAndSecret(
+              buildPayload(clientId, clientSecret),
+              {
+                failOnStatusCode: false,
+              },
+            ),
         );
         await checkError(response);
       });
@@ -185,7 +187,7 @@ test.describe(
 
         const response =
           await test.step(`Take token with client ID = ${dataType}`, async () => {
-            return oauthController.withClientIdAndSecret(payload as any, {
+            return await oauthController.withClientIdAndSecret(payload as any, {
               failOnStatusCode: false,
             });
           });
@@ -205,7 +207,7 @@ test.describe(
 
         const response =
           await test.step(`Take token with client ID = ${dataType}`, async () => {
-            return oauthController.withClientIdAndSecret(payload as any, {
+            return await oauthController.withClientIdAndSecret(payload as any, {
               failOnStatusCode: false,
             });
           });
@@ -225,7 +227,7 @@ test.describe(
 
         const response =
           await test.step(`Take token with grant type = ${dataType}`, async () => {
-            return oauthController.withClientIdAndSecret(payload as any, {
+            return await oauthController.withClientIdAndSecret(payload as any, {
               failOnStatusCode: false,
             });
           });

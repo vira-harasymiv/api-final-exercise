@@ -17,7 +17,7 @@ test.describe(
 
     test.beforeEach("Create a new course", async ({ coursesController }) => {
       const response = await test.step("Create a new course", async () => {
-        return coursesController.createCourse(
+        return await coursesController.createCourse(
           { title: title },
           { failOnStatusCode: true },
         );
@@ -41,7 +41,7 @@ test.describe(
       coursesController,
     }) => {
       const response = await test.step("Get course by ID", async () => {
-        return coursesController.getCourseById(courseId, {
+        return await coursesController.getCourseById(courseId, {
           failOnStatusCode: true,
         });
       });
@@ -72,7 +72,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Get course by non-existing ID", async () => {
-          return coursesController.getCourseById("non-existing ID", {
+          return await coursesController.getCourseById("non-existing ID", {
             failOnStatusCode: false,
           });
         });
