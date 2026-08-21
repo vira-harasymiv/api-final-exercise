@@ -1,60 +1,64 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
-  checkForbiddenResponse,
-  checkMandatoryHeaders,
-  checkOKResponse,
+  checkForbiddenStatusCode,
+  checkNotFoundStatusCode,
+  checkOKStatusCode,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/expect-helpers";
+} from "../../app/utils/general-expect-helpers";
 
 //Positive tests for checking the client deleting
-test.describe("DELETE /clients - Deactivate client by ID using ADMIN credentials: should be successful", () => {
-  let clientId: string;
-  let token: string;
+test.describe(
+  "DELETE /clients - Deactivate client by ID using ADMIN credentials: should be successful",
+  { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
+  () => {
+    let clientId: string;
+    let token: string;
 
-  test.beforeEach(
-    "Create a new client",
-    async ({ apiClient, randomString }) => {
-      const result = await apiClient.loginWithCredentialsOfNewClient(
-        randomString,
-        ["read", "write"],
-      );
-      clientId = result.clientId;
-      token = result.token;
-    },
-  );
+    test.beforeEach(
+      "Create a new client",
+      async ({ apiClient, randomString }) => {
+        const result = await apiClient.loginWithCredentialsOfNewClient(
+          randomString,
+          ["read", "write"],
+        );
+        clientId = result.clientId;
+        token = result.token;
+      },
+    );
 
-  test.afterEach(
-    "Deactivate the created clients",
-    async ({ clientsController }) => {
-      await test.step("Delete the prepared test data", async () => {
-        await clientsController.deactivateClient({
-          clientId: clientId,
-          failOnStatusCode: true,
-        });
-      });
-    },
-  );
-
-  test(
-    "Deactivate user by admin - it should be successful",
-    { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
-    async ({ clientsController }) => {
-      const response =
-        await test.step("Deactivate client by admin", async () => {
-          return clientsController.deactivateClient({
+    test.afterEach(
+      "Deactivate the created clients",
+      async ({ clientsController }) => {
+        await test.step("Delete the prepared test data", async () => {
+          await clientsController.deactivateClient({
             clientId: clientId,
             failOnStatusCode: true,
           });
         });
-      await checkOKResponse(response);
-      await test.step("Verify if the success message is true", async () => {
-        const json = await response.json();
-        expect(json.success).toBe(true);
-      });
-    },
-  );
-});
+      },
+    );
+
+    test(
+      "Deactivate created client by admin - it should be successful",
+      { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
+      async ({ clientsController, userInfoController }) => {
+        const response =
+          await test.step("Deactivate client by admin", async () => {
+            return clientsController.deactivateClient({
+              clientId: clientId,
+              failOnStatusCode: true,
+            });
+          });
+        await checkOKStatusCode(response);
+        await test.step("Verify if the success message is true", async () => {
+          const json = await response.json();
+          expect.soft(json.success).toBe(true);
+        });
+      },
+    );
+  },
+);
 
 //Negative tests for checking the client deleting
 test.describe(
@@ -126,7 +130,7 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-      await checkForbiddenResponse(response);
+      await checkForbiddenStatusCode(response);
     });
 
     test("Client with write permission can not deactivate admin: 403 error", async ({
@@ -140,7 +144,7 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-      await checkForbiddenResponse(response);
+      await checkForbiddenStatusCode(response);
     });
 
     test("Client with read permission can not deactivate admin: 403 error", async ({
@@ -154,7 +158,7 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-      await checkForbiddenResponse(response);
+      await checkForbiddenStatusCode(response);
     });
 
     test("Client with read permission can not deactivate client with write permission: 403 error", async ({
@@ -168,7 +172,7 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-      await checkForbiddenResponse(response);
+      await checkForbiddenStatusCode(response);
     });
 
     test("Client with write permission can not deactivate client with read permission: 403 error", async ({
@@ -182,7 +186,7 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-      await checkForbiddenResponse(response);
+      await checkForbiddenStatusCode(response);
     });
 
     test("Delete any client by ID without auth: 401 error", async ({
@@ -210,8 +214,7 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-      await checkMandatoryHeaders(response);
-      expect(response.status()).toBe(404);
+      await checkNotFoundStatusCode(response);
     });
   },
 );

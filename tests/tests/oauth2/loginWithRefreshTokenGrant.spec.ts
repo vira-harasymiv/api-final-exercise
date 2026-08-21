@@ -1,11 +1,11 @@
 import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
+import { checkSchema } from "../../app/utils/general-expect-helpers";
 import {
   checkSuccessfulTokenResponse,
-  checkUnauthorizedRefreshTokenError,
-  checkSchema,
   checkInvalidGrantType,
-} from "../../app/utils/expect-helpers";
+  checkUnauthorizedStatusCodeForRefreshToken,
+} from "./helpers/expect-helpers";
 import { passwordGrantPayload } from "./testData/payloads";
 import {
   invalidDataTypes,
@@ -140,7 +140,7 @@ test.describe(
       });
     }
 
-    test("Vetify logging with using access token instead of refresh token", async ({
+    test("Verify logging with using access token instead of refresh token", async ({
       oauthController,
     }) => {
       const response =
@@ -153,7 +153,7 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
-      await checkUnauthorizedRefreshTokenError(response);
+      await checkUnauthorizedStatusCodeForRefreshToken(response);
     });
   },
 );

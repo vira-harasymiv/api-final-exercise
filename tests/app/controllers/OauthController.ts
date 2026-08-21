@@ -1,6 +1,6 @@
-import { BaseController } from "../Base/BaseController";
-import { Endpoints } from "../../utils/Endpoints";
-import { passwordGrantPayload } from "../../../tests/oauth2/testData/payloads";
+import { BaseController } from "../controllers/Base/BaseController";
+import { Endpoints } from "../utils/Endpoints";
+import { passwordGrantPayload } from "../../tests/oauth2/testData/payloads";
 
 export class OauthController extends BaseController {
   private tokenEndpoint = Endpoints.tokenEndpoint;

@@ -1,5 +1,5 @@
-import { BaseController } from "../Base/BaseController";
-import { Endpoints } from "../../utils/Endpoints";
+import { BaseController } from "../controllers/Base/BaseController";
+import { Endpoints } from "../utils/Endpoints";
 
 export class RevokeController extends BaseController {
   private revokeEndpoint = Endpoints.revokeEndpoint;

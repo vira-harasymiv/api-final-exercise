@@ -1,8 +1,8 @@
+import { checkBadStatusCode } from "../../../app/utils/general-expect-helpers";
 import {
-  checkEmptyProperty,
   checkInvalidEmail,
-  checkBadRequest,
-} from "../../../app/utils/expect-helpers";
+  checkEmptyProperty,
+} from "../helpers/expect-helpers";
 
 export const invalidDataTypes = [
   { id: 1, dataType: "empty string", data: "" },
@@ -17,11 +17,11 @@ export const invalidDataTypes = [
 export const invalidDataTypesForCredentials = [
   { id: 1, dataType: "empty string", data: "", check: checkEmptyProperty },
 
-  { id: 2, dataType: "null", data: null, check: checkBadRequest },
+  { id: 2, dataType: "null", data: null, check: checkBadStatusCode },
 
-  { id: 3, dataType: "boolean", data: true, check: checkBadRequest },
+  { id: 3, dataType: "boolean", data: true, check: checkBadStatusCode },
 
-  { id: 4, dataType: "number", data: 1, check: checkBadRequest },
+  { id: 4, dataType: "number", data: 1, check: checkBadStatusCode },
 ];
 
 export const invalidDataTypesForPassword = [
@@ -30,19 +30,19 @@ export const invalidDataTypesForPassword = [
     id: 2,
     dataType: "null",
     data: null,
-    check: checkBadRequest,
+    check: checkBadStatusCode,
   },
   {
     id: 3,
     dataType: "boolean",
     data: true,
-    check: checkBadRequest,
+    check: checkBadStatusCode,
   },
   {
     id: 4,
     dataType: "number",
     data: 1,
-    check: checkBadRequest,
+    check: checkBadStatusCode,
   },
 ];
 
@@ -114,13 +114,13 @@ export const testDataForInvalidEmail = [
     id: 10,
     dataType: "null",
     data: null,
-    check: checkBadRequest,
+    check: checkBadStatusCode,
   },
 
   {
     id: 11,
     dataType: "boolean",
     data: true,
-    check: checkBadRequest,
+    check: checkBadStatusCode,
   },
 ];

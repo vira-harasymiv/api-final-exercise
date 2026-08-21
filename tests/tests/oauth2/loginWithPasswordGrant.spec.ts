@@ -1,10 +1,10 @@
 import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
+import { checkSchema } from "../../app/utils/general-expect-helpers";
 import {
   checkSuccessfulTokenResponse,
-  checkSchema,
   checkInvalidGrantType,
-} from "../../app/utils/expect-helpers";
+} from "./helpers/expect-helpers";
 import {
   passwordGrantPayload,
   passwordGrantPayloadWithScope,

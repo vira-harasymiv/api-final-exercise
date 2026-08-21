@@ -8,4 +8,5 @@ export class Endpoints {
   static readonly clientsEndpoint = this.oauthEndpoint + "clients";
   static readonly revokeEndpoint = this.oauthEndpoint + "revoke";
   static readonly userInfoEndpoint = this.oauthEndpoint + "userinfo";
+  static readonly coursesEndpoint = this.baseEndpoint + "courses";
 }

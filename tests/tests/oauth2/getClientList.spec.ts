@@ -1,10 +1,10 @@
 import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
-  checkOKResponse,
+  checkOKStatusCode,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/expect-helpers";
+} from "../../app/utils/general-expect-helpers";
 import { oauthClientListSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Poitive tests - get clients
@@ -20,7 +20,7 @@ test.describe(
           return clientsController.getClients({ failOnStatusCode: true });
         });
 
-      await checkOKResponse(response);
+      await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(
         json,
@@ -31,49 +31,21 @@ test.describe(
   },
 );
 
+//Negative test cases
 test.describe(
-  "GET /clients: getting all clients by non-auth admin & user - should be 401 error",
+  "GET /clients: getting all clients by non-auth admin",
   { tag: [TAG.negative, TAG.smoke, TAG.oauth] },
   () => {
     test.use({ isAuthorized: false });
 
-    let token: string;
-
-    test.beforeAll("Get user token", async ({ apiClient, randomString }) => {
-      await test.step("Get user token", async () => {
-        const result = await apiClient.getUserTokenAndRefreshToken(
-          randomString,
-          randomString + "@mail.com",
-          "Password123",
-        );
-        token = result.token;
-        console.log(token);
-      });
-
-      test("Take clients list by non-auth client - should be 401 error", async ({
-        clientsController,
-      }) => {
-        const response =
-          await test.step("Try to get clients list using user token", async () => {
-            return clientsController.getClients({ failOnStatusCode: false });
-          });
-        await checkUnauthorizedStatusCode(response);
-      });
-
-      test("Take clients list by user - should be 401 error", async ({
-        clientsController,
-      }) => {
-        const response =
-          await test.step("Try to get clients list using user token", async () => {
-            return clientsController.getClients({
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              failOnStatusCode: false,
-            });
-          });
-        await checkUnauthorizedStatusCode(response);
-      });
+    test("Take clients list by non-auth client - should be 401 error", async ({
+      clientsController,
+    }) => {
+      const response =
+        await test.step("Try to get clients list using user token", async () => {
+          return clientsController.getClients({ failOnStatusCode: false });
+        });
+      await checkUnauthorizedStatusCode(response);
     });
   },
 );

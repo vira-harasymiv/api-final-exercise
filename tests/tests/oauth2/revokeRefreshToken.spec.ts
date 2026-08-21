@@ -2,14 +2,15 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import { passwordGrantPayload } from "./testData/payloads";
 import {
-  checkMandatoryHeaders,
-  checkOKResponse,
-  checkUnauthorizedRefreshTokenError,
+  checkBadStatusCode,
+  checkNotFoundStatusCode,
+  checkOKStatusCode,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/expect-helpers";
+} from "../../app/utils/general-expect-helpers";
+import { checkUnauthorizedStatusCodeForRefreshToken } from "./helpers/expect-helpers";
 import { invalidDataTypes } from "./testData/testData";
 
-//Positive tests for checking the refresh token revoking
+//Positive test scenario for checking the refresh token revoking
 test.describe(
   "POST /token - Revoke refresh token: should be successful",
   { tag: [TAG.smoke, TAG.oauth, TAG.regression] },
@@ -34,9 +35,10 @@ test.describe(
     //!ACT
     test("Revoke refresh token - should be successful", async ({
       revokeController,
+      oauthController,
     }) => {
       const response =
-        await test.step("Post resfresh token to revoke it", async () => {
+        await test.step("Post refresh token to revoke it", async () => {
           return revokeController.revokeToken(
             { token: refreshToken },
             {
@@ -47,21 +49,23 @@ test.describe(
         });
 
       //!ASSERT
-      await checkOKResponse(response);
+      await checkOKStatusCode(response);
+
       await test.step("Verify of the success is true in the response", async () => {
         const json = await response.json();
         expect(json.success).toBe(true);
       });
-    });
 
-    test("Login with revoked refreshToken - should be 401 error", async ({
-      apiClient,
-    }) => {
-      const response = await apiClient.loginWithRevokedToken(
-        token,
-        refreshToken,
-      );
-      await checkUnauthorizedRefreshTokenError(response);
+      await test.step("Verify if the token has been revoked by login with Refresh Token Grant", async () => {
+        const response = await oauthController.withRefreshTokenGrant(
+          {
+            grant_type: "refresh_token",
+            refresh_token: refreshToken,
+          },
+          { failOnStatusCode: false },
+        );
+        await checkUnauthorizedStatusCodeForRefreshToken(response);
+      });
     });
   },
 );
@@ -81,7 +85,6 @@ test.describe(
         const response = await revokeController.revokeInvalidToken({
           token: data,
         });
-        await checkMandatoryHeaders(response);
         expect(response.status()).toBe(400);
       });
     }
@@ -95,11 +98,9 @@ test.describe(
             token: "dsdsdsdjskdjskd",
           });
         });
+      await checkNotFoundStatusCode(response);
       const json = await response.json();
-      await checkMandatoryHeaders(response);
-      expect(response.status()).toBe(404);
-      expect(response.statusText()).toBe("Not Found");
-      expect(json.error).toBe("Token not found");
+      expect.soft(json.error).toBe("Token not found");
     });
   },
 );

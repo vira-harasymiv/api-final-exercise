@@ -1,10 +1,10 @@
 import { APIRequestContext } from "@playwright/test";
-import { OauthController } from "../OAuth2/OauthController";
-import { RevokeController } from "../OAuth2/RevokeController";
-import { ClientsController } from "../OAuth2/ClientsController";
-import { AuthController } from "../Auth/AuthController";
+import { OauthController } from "../OauthController";
+import { RevokeController } from "../RevokeController";
+import { ClientsController } from "../ClientsController";
+import { AuthController } from "../AuthController";
 import { passwordGrantPayload } from "../../../tests/oauth2/testData/payloads";
-import { UserInfoController } from "../OAuth2/UseInfoController";
+import { UserInfoController } from "../UseInfoController";
 
 export class ApiClient {
   private oauthController: OauthController;
@@ -19,25 +19,6 @@ export class ApiClient {
     this.clientsController = new ClientsController(request);
     this.authController = new AuthController(request);
     this.userInfoController = new UserInfoController(request);
-  }
-
-  //Login to the app with revoked token
-  async loginWithRevokedToken(token: string, refreshToken: string) {
-    await this.revokeController.revokeToken(
-      { token: refreshToken },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        failOnStatusCode: true,
-      },
-    );
-
-    return await this.oauthController.withRefreshTokenGrant(
-      {
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      },
-      { failOnStatusCode: false },
-    );
   }
 
   //Login to the app using credentials of the created new client
@@ -78,28 +59,7 @@ export class ApiClient {
     return { responseLogin, clientId, token, refreshToken };
   }
 
-  //Get token of the created user
-  async getUserTokenAndRefreshToken(
-    name: string,
-    email: string,
-    password: string,
-  ) {
-    await this.authController.registerUser(
-      { name: name, email: email, password: password },
-      { failOnStatusCode: true },
-    );
-
-    const loginResponse = await this.oauthController.withPasswordGrant(
-      { grant_type: "password", email: email, password: password },
-      { failOnStatusCode: true },
-    );
-
-    const json = await loginResponse.json();
-    const token = json.access_token;
-    const refreshToken = json.refresh_token;
-    return { token, refreshToken };
-  }
-
+  //Login as known client and get info about him using GET method
   async getClientInfo(clientId: string, clientSecret: string) {
     const responseLogin = await this.oauthController.withClientIdAndSecret(
       {

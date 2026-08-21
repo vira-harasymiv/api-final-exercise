@@ -1,12 +1,11 @@
+import { checkBadStatusCode } from "../../../app/utils/general-expect-helpers";
 import {
-  checkUnauthorizedError,
-  checkUnauthorizedClientError,
-  checkUnauthorizedRefreshTokenError,
-  checkEmptyProperty,
-  checkInvalidEmail,
-  checkBadRequest,
   checkInvalidGrantType,
-} from "../../../app/utils/expect-helpers";
+  checkUnauthorizedStatusCodeForRefreshToken,
+  checkEmptyProperty,
+  checkUnauthorizedStatusCodeForPasswordGrant,
+  checkUnauthorizedStatusCodeForCredentialsGrant,
+} from "../helpers/expect-helpers";
 import { passwordGrantPayload } from "./payloads";
 
 export const invalidCasesForPasswordGrant: Array<{
@@ -32,7 +31,7 @@ export const invalidCasesForPasswordGrant: Array<{
       grant_type: "password",
       email: process.env.ADMIN_EMAIL,
     },
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
 
   {
@@ -42,7 +41,7 @@ export const invalidCasesForPasswordGrant: Array<{
       grant_type: "password",
       password: process.env.ADMIN_PASSWORD,
     },
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
 
   {
@@ -62,7 +61,7 @@ export const invalidCasesForPasswordGrant: Array<{
       ...passwordGrantPayload,
       email: "non-existent-email@mail.com",
     },
-    checkError: checkUnauthorizedError,
+    checkError: checkUnauthorizedStatusCodeForPasswordGrant,
   },
 
   {
@@ -72,7 +71,7 @@ export const invalidCasesForPasswordGrant: Array<{
       ...passwordGrantPayload,
       password: "admin",
     },
-    checkError: checkUnauthorizedError,
+    checkError: checkUnauthorizedStatusCodeForPasswordGrant,
   },
 ];
 
@@ -101,7 +100,7 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       grant_type: "client_credentials",
       client_secret: clientSecret,
     }),
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
   {
     title: "Logging without client_secret - should be 400 error",
@@ -110,7 +109,7 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       grant_type: "client_credentials",
       client_id: clientId,
     }),
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
   {
     title: "Logging with incorrect grant_type - should be 400 error",
@@ -120,7 +119,7 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: clientId,
       client_secret: clientSecret,
     }),
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
   {
     title: "Logging with non-registered client_id - should be 401 error",
@@ -130,7 +129,7 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: "00000000-0000-0000-0000-000000000000",
       client_secret: clientSecret,
     }),
-    checkError: checkUnauthorizedClientError,
+    checkError: checkUnauthorizedStatusCodeForCredentialsGrant,
   },
   {
     title: "Logging with incorrect client_secret - should be 401 error",
@@ -140,7 +139,7 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: clientId,
       client_secret: "incorrect-secret",
     }),
-    checkError: checkUnauthorizedClientError,
+    checkError: checkUnauthorizedStatusCodeForCredentialsGrant,
   },
 ];
 
@@ -164,7 +163,7 @@ export const invalidCasesForRefreshTokenGrant: Array<{
     buildPayload: () => ({
       grant_type: "refresh_token",
     }),
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
 
   {
@@ -174,7 +173,7 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "client_credentials",
       refresh_token: refreshToken,
     }),
-    checkError: checkBadRequest,
+    checkError: checkBadStatusCode,
   },
   {
     title: "Logging with non-existent refresh token - should be 401 error",
@@ -183,7 +182,7 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "refresh_token",
       refresh_token: "dfdflfldfjkfjlkjkjflkdf-dfdkfjdkfkdfj",
     }),
-    checkError: checkUnauthorizedRefreshTokenError,
+    checkError: checkUnauthorizedStatusCodeForRefreshToken,
   },
   {
     title: "Logging with empty refresh token - should be 400 error",
@@ -203,6 +202,6 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "refresh_token",
       refresh_token: "             ",
     }),
-    checkError: checkUnauthorizedRefreshTokenError,
+    checkError: checkUnauthorizedStatusCodeForRefreshToken,
   },
 ];

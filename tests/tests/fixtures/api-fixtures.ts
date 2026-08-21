@@ -1,10 +1,11 @@
 import { test as base } from "../fixtures/fixture";
-import { OauthController } from "../../app/controllers/OAuth2/OauthController";
-import { AuthController } from "../../app/controllers/Auth/AuthController";
-import { ClientsController } from "../../app/controllers/OAuth2/ClientsController";
-import { RevokeController } from "../../app/controllers/OAuth2/RevokeController";
+import { OauthController } from "../../app/controllers/OauthController";
+import { AuthController } from "../../app/controllers/AuthController";
+import { ClientsController } from "../../app/controllers/ClientsController";
+import { RevokeController } from "../../app/controllers/RevokeController";
 import { ApiClient } from "../../app/controllers/Base/ApiClient";
-import { UserInfoController } from "../../app/controllers/OAuth2/UseInfoController";
+import { UserInfoController } from "../../app/controllers/UseInfoController";
+import { CoursesController } from "../../app/controllers/CoursesController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {
@@ -14,6 +15,7 @@ type Fixtures = {
   revokeController: RevokeController;
   apiClient: ApiClient;
   userInfoController: UserInfoController;
+  coursesController: CoursesController;
 };
 
 export const test = base.extend<Fixtures>({
@@ -39,5 +41,9 @@ export const test = base.extend<Fixtures>({
 
   userInfoController: async ({ request }, use) => {
     await use(new UserInfoController(request));
+  },
+
+  coursesController: async ({ request }, use) => {
+    await use(new CoursesController(request));
   },
 });

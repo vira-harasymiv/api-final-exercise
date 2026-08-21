@@ -2,8 +2,8 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
   checkUnauthorizedStatusCode,
-  checkOKResponse,
-} from "../../app/utils/expect-helpers";
+  checkOKStatusCode,
+} from "../../app/utils/general-expect-helpers";
 
 //Positive smoke tests for getting client's and admin's info
 test.describe(
@@ -48,7 +48,7 @@ test.describe(
             failOnStatusCode: true,
           });
         });
-      await checkOKResponse(response);
+      await checkOKStatusCode(response);
       await test.step("Verify response properties", async () => {
         const json = await response.json();
         expect.soft(json.sub).toBe(clientId);
@@ -62,7 +62,7 @@ test.describe(
         await test.step("Get info about the authorized admin", async () => {
           return userInfoController.getUserInfo({ failOnStatusCode: true });
         });
-      await checkOKResponse(response);
+      await checkOKStatusCode(response);
       await test.step("Verify response properties", async () => {
         const json = await response.json();
         expect.soft(json.email).toBe(process.env.ADMIN_EMAIL);

@@ -1,12 +1,12 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
-  checkCreatedResponse,
-  checkForbiddenResponse,
-  checkMandatoryHeaders,
+  checkBadStatusCode,
+  checkCreatedStatusCode,
+  checkForbiddenStatusCode,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/expect-helpers";
+} from "../../app/utils/general-expect-helpers";
 import { oauthCreatedClientSchema } from "../../app/json-schemas/oauthSchemas";
 import { createClientPositiveCases } from "./testData/testDataPositiveCases";
 import { invalidDataTypes } from "./testData/testData";
@@ -30,7 +30,7 @@ test.describe(
           });
         });
 
-        await checkCreatedResponse(response);
+        await checkCreatedStatusCode(response);
 
         const json = await response.json();
         await checkSchema(
@@ -89,7 +89,7 @@ test.describe(
               },
             );
           });
-        await checkForbiddenResponse(response);
+        await checkForbiddenStatusCode(response);
       });
     });
   },
@@ -107,8 +107,7 @@ test.describe(
         const response = await clientsController.createClientWithInvalidData({
           name: data,
         });
-        await checkMandatoryHeaders(response);
-        expect(response.status()).toBe(400);
+        await checkBadStatusCode(response);
       });
     }
   },
