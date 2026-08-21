@@ -27,26 +27,13 @@ test.describe(
       },
     );
 
-    test.afterEach(
-      "Deactivate the created clients",
-      async ({ clientsController }) => {
-        await test.step("Delete the prepared test data", async () => {
-          await clientsController.deactivateClient({
-            clientId: clientId,
-            failOnStatusCode: true,
-          });
-        });
-      },
-    );
-
     test(
       "Deactivate created client by admin - it should be successful",
       { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
       async ({ clientsController, userInfoController }) => {
         const response =
           await test.step("Deactivate client by admin", async () => {
-            return clientsController.deactivateClient({
-              clientId: clientId,
+            return clientsController.deactivateClient(clientId, {
               failOnStatusCode: true,
             });
           });
@@ -109,9 +96,8 @@ test.describe(
 
         for (const id of ids) {
           await test.step("Delete the prepared test data", async () => {
-            await clientsController.deactivateClient({
+            await clientsController.deactivateClient(id, {
               headers: { Authorization: `Bearer ${token}` },
-              clientId: id,
               failOnStatusCode: true,
             });
           });
@@ -124,9 +110,8 @@ test.describe(
     }) => {
       const response =
         await test.step("Login as admin and send request using the logged admin ID", async () => {
-          return clientsController.deactivateClient({
+          return clientsController.deactivateClient(adminClientId, {
             headers: { Authorization: `Bearer ${adminToken}` },
-            clientId: adminClientId,
             failOnStatusCode: false,
           });
         });
@@ -138,9 +123,8 @@ test.describe(
     }) => {
       const response =
         await test.step("Login as client with 'write' permission and try to delete admin", async () => {
-          return clientsController.deactivateClient({
+          return clientsController.deactivateClient(adminClientId, {
             headers: { Authorization: `Bearer ${writeAndReadToken}` },
-            clientId: adminClientId,
             failOnStatusCode: false,
           });
         });
@@ -152,9 +136,8 @@ test.describe(
     }) => {
       const response =
         await test.step("Login as client with 'read' permission and try to delete admin", async () => {
-          return clientsController.deactivateClient({
+          return clientsController.deactivateClient(adminClientId, {
             headers: { Authorization: `Bearer ${readClientToken}` },
-            clientId: adminClientId,
             failOnStatusCode: false,
           });
         });
@@ -166,9 +149,8 @@ test.describe(
     }) => {
       const response =
         await test.step("Login as client with 'read' permission and try to delete client with write permission", async () => {
-          return clientsController.deactivateClient({
+          return clientsController.deactivateClient(writeAndReadClientId, {
             headers: { Authorization: `Bearer ${readClientToken}` },
-            clientId: writeAndReadClientId,
             failOnStatusCode: false,
           });
         });
@@ -180,9 +162,8 @@ test.describe(
     }) => {
       const response =
         await test.step("Login as client with 'read' permission and try to delete client with write permission", async () => {
-          return clientsController.deactivateClient({
+          return clientsController.deactivateClient(readClientId, {
             headers: { Authorization: `Bearer ${writeAndReadToken}` },
-            clientId: readClientId,
             failOnStatusCode: false,
           });
         });
@@ -194,8 +175,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to delete any client by ID without auth", async () => {
-          return clientsController.deactivateClient({
-            clientId: readClientId,
+          return clientsController.deactivateClient(readClientId, {
             failOnStatusCode: false,
           });
         });
@@ -208,11 +188,13 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to delete any client by non-existing ID", async () => {
-          return clientsController.deactivateClient({
-            headers: { Authorization: `Bearer ${adminToken}` },
-            clientId: "dsdsdsdsdsdsdsdsfsfsfsdfsfsfsf",
-            failOnStatusCode: false,
-          });
+          return clientsController.deactivateClient(
+            "dsdsdsdsdsdsdsdsfsfsfsdfsfsfsf",
+            {
+              headers: { Authorization: `Bearer ${adminToken}` },
+              failOnStatusCode: false,
+            },
+          );
         });
       await checkNotFoundStatusCode(response);
     });

@@ -1,23 +1,17 @@
 import { APIRequestContext } from "@playwright/test";
 import { OauthController } from "../OauthController";
-import { RevokeController } from "../RevokeController";
 import { ClientsController } from "../ClientsController";
-import { AuthController } from "../AuthController";
 import { passwordGrantPayload } from "../../../tests/oauth2/testData/payloads";
 import { UserInfoController } from "../UseInfoController";
 
 export class ApiClient {
   private oauthController: OauthController;
-  private revokeController: RevokeController;
   private clientsController: ClientsController;
-  private authController: AuthController;
   private userInfoController: UserInfoController;
 
   constructor(request: APIRequestContext) {
     this.oauthController = new OauthController(request);
-    this.revokeController = new RevokeController(request);
     this.clientsController = new ClientsController(request);
-    this.authController = new AuthController(request);
     this.userInfoController = new UserInfoController(request);
   }
 

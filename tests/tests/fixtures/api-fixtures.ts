@@ -6,6 +6,7 @@ import { RevokeController } from "../../app/controllers/RevokeController";
 import { ApiClient } from "../../app/controllers/Base/ApiClient";
 import { UserInfoController } from "../../app/controllers/UseInfoController";
 import { CoursesController } from "../../app/controllers/CoursesController";
+import { CategoriesController } from "../../app/controllers/CategoriesController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {
@@ -16,6 +17,7 @@ type Fixtures = {
   apiClient: ApiClient;
   userInfoController: UserInfoController;
   coursesController: CoursesController;
+  categoriesController: CategoriesController;
 };
 
 export const test = base.extend<Fixtures>({
@@ -45,5 +47,9 @@ export const test = base.extend<Fixtures>({
 
   coursesController: async ({ request }, use) => {
     await use(new CoursesController(request));
+  },
+
+  categoriesController: async ({ request }, use) => {
+    await use(new CategoriesController(request));
   },
 });

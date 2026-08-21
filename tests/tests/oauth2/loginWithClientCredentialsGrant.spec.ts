@@ -41,8 +41,7 @@ test.describe(
       "Deactivate the created client",
       async ({ clientsController }) => {
         await test.step("Delete the created client", async () => {
-          await clientsController.deactivateClient({
-            clientId: clientId,
+          await clientsController.deactivateClient(clientId, {
             failOnStatusCode: true,
           });
         });
@@ -148,8 +147,7 @@ test.describe(
       "Deactivate the created clients",
       async ({ clientsController }) => {
         await test.step("Delete the prepared test data", async () => {
-          await clientsController.deactivateClient({
-            clientId: clientId,
+          await clientsController.deactivateClient(clientId, {
             failOnStatusCode: true,
           });
         });

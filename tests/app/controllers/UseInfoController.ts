@@ -1,17 +1,11 @@
 import { BaseController } from "./Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
+import { RequestOptions } from "../utils/interfaces";
 
 export class UserInfoController extends BaseController {
   private userInfoEndpoint = Endpoints.userInfoEndpoint;
 
-  async getUserInfo(options: {
-    headers?: { Authorization?: string };
-    failOnStatusCode?: boolean;
-  }) {
-    const response = await this.request.get(this.userInfoEndpoint, {
-      headers: options?.headers,
-      failOnStatusCode: options?.failOnStatusCode,
-    });
-    return response;
+  getUserInfo(options: RequestOptions) {
+    return this.get(this.userInfoEndpoint, options);
   }
 }

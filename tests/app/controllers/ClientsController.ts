@@ -1,69 +1,40 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
+import { RequestOptions } from "../utils/interfaces";
 
 export class ClientsController extends BaseController {
   private clientsEndpoint = Endpoints.clientsEndpoint;
 
-  //POST request to create a new client)
-  async createClient(
-    data?: {
-      name?: string;
-      grants?: Array<string>;
-      scopes?: Array<string>;
-    },
-    options?: {
-      headers?: { Authorization?: string };
-      failOnStatusCode?: boolean;
-    },
+  //POST request to create a new client
+  createClient(
+    data?: { name?: string; grants?: Array<string>; scopes?: Array<string> },
+    options?: RequestOptions,
   ) {
-    const response = await this.request.post(this.clientsEndpoint, {
-      data: data,
-      headers: options?.headers,
-      failOnStatusCode: options?.failOnStatusCode,
-    });
-    return response;
+    return this.post(this.clientsEndpoint, data, options);
   }
 
-  //POST request to create a new client with INVALID properties)
-  async createClientWithInvalidData(
+  //POST request to create a new client with INVALID properties
+  createClientWithInvalidData(
     data?: {
       name?: string | any;
       grants?: Array<string> | any;
       scopes?: Array<string> | any;
     },
-    options?: {
-      headers?: { Authorization?: string };
-    },
+    options?: RequestOptions,
   ) {
-    const response = await this.request.post(this.clientsEndpoint, {
-      data: data,
-      headers: options?.headers,
+    return this.post(this.clientsEndpoint, data, {
+      ...options,
       failOnStatusCode: false,
     });
-    return response;
   }
 
   //GET request to get all clients
-  async getClients(options?: {
-    headers?: { Authorization?: string };
-    failOnStatusCode?: boolean;
-  }) {
-    return await this.request.get(this.clientsEndpoint);
+  getClients(options?: RequestOptions) {
+    return this.get(this.clientsEndpoint, options);
   }
 
   //Deactivate client by ID
-  async deactivateClient(options?: {
-    headers?: { Authorization?: string };
-    clientId?: string | any;
-    failOnStatusCode?: boolean;
-  }) {
-    const response = await this.request.delete(
-      `${this.clientsEndpoint}/${options?.clientId}`,
-      {
-        headers: options?.headers,
-        failOnStatusCode: options?.failOnStatusCode,
-      },
-    );
-    return response;
+  deactivateClient(clientId: string, options?: RequestOptions) {
+    return this.delete(`${this.clientsEndpoint}/${clientId}`, options);
   }
 }
