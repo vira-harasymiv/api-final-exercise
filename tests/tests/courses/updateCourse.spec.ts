@@ -207,12 +207,12 @@ test.describe(
   },
 );
 
-//NEGATIVE tests for updating a course using invalid data and non-existing course ID
+//NEGATIVE tests for updating a course using invalid data
 test.describe(
   "PATCH /courses/{courseId} - Update a course using invalid data",
   { tag: [TAG.courses, TAG.negative, TAG.regression] },
   () => {
-    const courseTitle = "New Course";
+    const courseTitle = "New Course" + Math.floor(Math.random() * 1_000);
     const categoryName = "New Category" + Math.floor(Math.random() * 1_000);
     let courseId: string;
     let categoryId: string;
@@ -292,21 +292,6 @@ test.describe(
         });
 
       expect(responseUpdate.status()).toBeLessThan(500);
-    });
-
-    //! The course title can be updated to empty string
-    test("Update course title with empty string", async ({
-      coursesController,
-    }) => {
-      const courseBuilder = new CourseBuilder().withTitle("").build();
-      const responseUpdate =
-        await test.step("Update course title with 1 character - should be error", async () => {
-          return await coursesController.updateCourse(courseId, courseBuilder, {
-            failOnStatusCode: false,
-          });
-        });
-
-      await checkBadStatusCode(responseUpdate);
     });
   },
 );

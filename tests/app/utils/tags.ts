@@ -7,4 +7,5 @@ export enum TAG {
   clientCredentialsGrant = "@clientCredentialsGrant",
   RefreshTokenGrant = "@refreshTokenGrant",
   courses = "@courses",
+  chapter = "@chapter",
 }

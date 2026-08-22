@@ -10,7 +10,7 @@ import {
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 import { invalidDataTypes } from "./testData/testData";
 
-//POSITIVE test for creating course
+//Positive test for creating course
 test.describe(
   "POST /courses - Create a course: should be successful",
   { tag: [TAG.courses, TAG.smoke, TAG.regression] },
@@ -85,7 +85,7 @@ test.describe(
   },
 );
 
-//NEGATIVE tests for creating a course without admin permission or auth
+//Negative tests for creating a course without admin permission or auth
 test.describe(
   "POST /courses - Create a course without auth or admin permission - should be 401/403 error",
   { tag: [TAG.negative, TAG.courses, TAG.smoke, TAG.regression] },

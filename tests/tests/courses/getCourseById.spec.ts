@@ -30,7 +30,7 @@ test.describe(
       "Delete the created course",
       async ({ coursesController }) => {
         await test.step("Delete the created course", async () => {
-          coursesController.deleteCourseById(courseId, {
+          await coursesController.deleteCourseById(courseId, {
             failOnStatusCode: true,
           });
         });

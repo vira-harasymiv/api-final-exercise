@@ -1,6 +1,10 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
-import { CourseUpdateBody, RequestOptions } from "../utils/interfaces";
+import {
+  CourseUpdateBody,
+  ChapterUpdateBody,
+  RequestOptions,
+} from "../utils/interfaces";
 
 export class CoursesController extends BaseController {
   private coursesEndpoint = Endpoints.coursesEndpoint;
@@ -29,6 +33,7 @@ export class CoursesController extends BaseController {
     return this.get(`${this.coursesEndpoint}/${courseId}`, options);
   }
 
+  //DELETE course by ID
   deleteCourseById(courseId: string, options?: RequestOptions) {
     return this.delete(`${this.coursesEndpoint}/${courseId}`, options);
   }
@@ -40,5 +45,45 @@ export class CoursesController extends BaseController {
     options?: RequestOptions,
   ) {
     return this.patch(`${this.coursesEndpoint}/${courseId}`, data, options);
+  }
+
+  //PATCH (Publish) course by ID
+  publishCourseById(courseId: string, options?: RequestOptions) {
+    return this.patch(`${this.coursesEndpoint}/${courseId}/publish`, options);
+  }
+
+  //POST - add a chapter to a course
+  addChapterToCourse(
+    courseId: string,
+    data?: { title: string },
+    options?: RequestOptions,
+  ) {
+    return this.post(
+      `${this.coursesEndpoint}/${courseId}/chapters`,
+      data,
+      options,
+    );
+  }
+
+  //PATCH - update the chapter
+  updateChapter(
+    courseId: string,
+    chapterId: string,
+    data?: ChapterUpdateBody,
+    options?: RequestOptions,
+  ) {
+    return this.patch(
+      `${this.coursesEndpoint}/${courseId}/chapters/${chapterId}`,
+      data,
+      options,
+    );
+  }
+
+  //DELETE - delete the chapter
+  deleteChapter(courseId: string, chapterId: string, options?: RequestOptions) {
+    return this.patch(
+      `${this.coursesEndpoint}/${courseId}/chapters/${chapterId}`,
+      options,
+    );
   }
 }
