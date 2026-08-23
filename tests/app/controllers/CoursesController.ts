@@ -2,86 +2,166 @@ import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
 import { ChapterUpdateBody } from "../utils/interfaces/ChapterUpdateBody";
 import { CourseUpdateBody } from "../utils/interfaces/CourseUpdateBode";
-import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class CoursesController extends BaseController {
   private coursesEndpoint = Endpoints.coursesEndpoint;
 
   //POST request to create a new course
-  createCourse(data?: { title: string }, options?: RequestOptions) {
-    return this.post(this.coursesEndpoint, { title: data?.title }, options);
+  async createCourse(
+    data?: { title: string },
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.post(this.coursesEndpoint, {
+      data,
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //POST request to create a new course using invalid data
-  createInvalidCourse(data?: { title: any }, options?: RequestOptions) {
-    return this.post(
-      this.coursesEndpoint,
-      { title: data?.title },
-      { ...options, failOnStatusCode: false },
-    );
+  async createInvalidCourse(
+    data?: { title: any },
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.post(this.coursesEndpoint, {
+      data,
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //GET all courses
-  getCourses(options?: RequestOptions) {
-    return this.get(this.coursesEndpoint, options);
+  async getCourses(options?: {
+    headers?: { Authorization?: string };
+    failOnStatusCode?: boolean;
+  }) {
+    return await this.request.get(this.coursesEndpoint, {
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //GET course by ID
-  getCourseById(courseId: string, options?: RequestOptions) {
-    return this.get(`${this.coursesEndpoint}/${courseId}`, options);
+  async getCourseById(
+    courseId: string,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.get(`${this.coursesEndpoint}/${courseId}`, {
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //DELETE course by ID
-  deleteCourseById(courseId: string, options?: RequestOptions) {
-    return this.delete(`${this.coursesEndpoint}/${courseId}`, options);
+  async deleteCourseById(
+    courseId: string,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.delete(`${this.coursesEndpoint}/${courseId}`, {
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //PATCH request to update a course
-  updateCourse(
+  async updateCourse(
     courseId: string,
     data?: CourseUpdateBody,
-    options?: RequestOptions,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
   ) {
-    return this.patch(`${this.coursesEndpoint}/${courseId}`, data, options);
+    return await this.request.patch(`${this.coursesEndpoint}/${courseId}`, {
+      data,
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //PATCH (Publish) course by ID
-  publishCourseById(courseId: string, options?: RequestOptions) {
-    return this.patch(`${this.coursesEndpoint}/${courseId}/publish`, options);
+  async publishCourseById(
+    courseId: string,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.patch(
+      `${this.coursesEndpoint}/${courseId}/publish`,
+      {
+        headers: options?.headers,
+        failOnStatusCode: options?.failOnStatusCode,
+      },
+    );
   }
 
   //POST - add a chapter to a course
-  addChapterToCourse(
+  async addChapterToCourse(
     courseId: string,
     data?: { title: string },
-    options?: RequestOptions,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
   ) {
-    return this.post(
+    return await this.request.post(
       `${this.coursesEndpoint}/${courseId}/chapters`,
-      data,
-      options,
+      {
+        data,
+        headers: options?.headers,
+        failOnStatusCode: options?.failOnStatusCode,
+      },
     );
   }
 
   //PATCH - update the chapter
-  updateChapter(
+  async updateChapter(
     courseId: string,
     chapterId: string,
     data?: ChapterUpdateBody,
-    options?: RequestOptions,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
   ) {
-    return this.patch(
+    return await this.request.patch(
       `${this.coursesEndpoint}/${courseId}/chapters/${chapterId}`,
-      data,
-      options,
+      {
+        data,
+        headers: options?.headers,
+        failOnStatusCode: options?.failOnStatusCode,
+      },
     );
   }
 
   //DELETE - delete the chapter
-  deleteChapter(courseId: string, chapterId: string, options?: RequestOptions) {
-    return this.patch(
+  async deleteChapter(
+    courseId: string,
+    chapterId: string,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.delete(
       `${this.coursesEndpoint}/${courseId}/chapters/${chapterId}`,
-      options,
+      {
+        headers: options?.headers,
+        failOnStatusCode: options?.failOnStatusCode,
+      },
     );
   }
 }

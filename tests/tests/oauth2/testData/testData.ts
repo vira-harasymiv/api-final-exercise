@@ -4,6 +4,8 @@ import {
   checkEmptyProperty,
 } from "../helpers/expect-helpers";
 
+//Wrong data types to substitute into the `grant_type` field - every case is expected
+//to fail schema validation regardless of which grant is being tested
 export const invalidDataTypes = [
   { id: 1, dataType: "empty string", data: "" },
 
@@ -14,6 +16,8 @@ export const invalidDataTypes = [
   { id: 4, dataType: "number", data: 1 },
 ];
 
+//Wrong data types to substitute into client_id/client_secret/refresh_token fields,
+//each paired with the response-check helper matching its expected error
 export const invalidDataTypesForCredentials = [
   { id: 1, dataType: "empty string", data: "", check: checkEmptyProperty },
 
@@ -24,6 +28,7 @@ export const invalidDataTypesForCredentials = [
   { id: 4, dataType: "number", data: 1, check: checkBadStatusCode },
 ];
 
+//Wrong data types to substitute into the `password` field for Password Grant negative tests
 export const invalidDataTypesForPassword = [
   { id: 1, dataType: "empty string", data: "", check: checkEmptyProperty },
   {
@@ -46,6 +51,8 @@ export const invalidDataTypesForPassword = [
   },
 ];
 
+//Invalid/malformed email values for Password Grant negative tests, each paired with
+//the response-check helper matching its expected error
 export const testDataForInvalidEmail = [
   {
     id: 1,

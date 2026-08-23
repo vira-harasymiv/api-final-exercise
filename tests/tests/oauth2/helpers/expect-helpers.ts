@@ -5,6 +5,7 @@ import {
   checkOKStatusCode,
 } from "../../../app/utils/general-expect-helpers";
 
+//Assert the 401 error returned for a failed Password Grant login (wrong email/password)
 export async function checkUnauthorizedStatusCodeForPasswordGrant(
   response: APIResponse,
 ) {
@@ -18,6 +19,7 @@ export async function checkUnauthorizedStatusCodeForPasswordGrant(
   });
 }
 
+//Assert the 401 error returned for a failed Client Credentials Grant login (wrong id/secret)
 export async function checkUnauthorizedStatusCodeForCredentialsGrant(
   response: APIResponse,
 ) {
@@ -31,6 +33,7 @@ export async function checkUnauthorizedStatusCodeForCredentialsGrant(
   });
 }
 
+//Assert the 401 error returned for a failed Refresh Token Grant login (invalid/expired token)
 export async function checkUnauthorizedStatusCodeForRefreshToken(
   response: APIResponse,
 ) {
@@ -44,6 +47,7 @@ export async function checkUnauthorizedStatusCodeForRefreshToken(
   });
 }
 
+//Assert the error message returned for a malformed email in Password Grant login
 export async function checkInvalidEmail(response: APIResponse) {
   await test.step("Verify error message", async () => {
     const json = await response.json();
@@ -51,6 +55,7 @@ export async function checkInvalidEmail(response: APIResponse) {
   });
 }
 
+//Assert a 400 error with the message returned when `grant_type` is missing or unrecognized
 export async function checkInvalidGrantType(response: APIResponse) {
   await checkBadStatusCode(response);
   await test.step("Verify error message", async () => {
@@ -82,6 +87,7 @@ export async function checkSuccessfulTokenResponse(
     : await checkAccessToken(response);
 }
 
+//Used for grants that return a refresh_token - verify both tokens are present and distinct
 async function checkTokens(response: APIResponse) {
   await test.step("Verify that access token is NOT equal to refresh token", async () => {
     const json = await response.json();
@@ -93,6 +99,7 @@ async function checkTokens(response: APIResponse) {
   });
 }
 
+//Used for grants without a refresh_token - verify the access token is present
 async function checkAccessToken(response: APIResponse) {
   await test.step("Verify access token", async () => {
     const json = await response.json();
@@ -101,6 +108,7 @@ async function checkAccessToken(response: APIResponse) {
   });
 }
 
+//Assert a 400 error with the message returned when a required string field is an empty string
 export async function checkEmptyProperty(response: APIResponse) {
   await checkBadStatusCode(response);
   await test.step("Verify error message", async () => {

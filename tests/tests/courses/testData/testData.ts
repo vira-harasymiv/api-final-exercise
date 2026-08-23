@@ -1,3 +1,4 @@
+//Wrong data types to substitute into the course `title` field for negative tests
 export const invalidDataTypes = [
   { id: 1, dataType: "empty string", data: "" },
 

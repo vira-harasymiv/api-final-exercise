@@ -8,6 +8,8 @@ import {
 } from "../helpers/expect-helpers";
 import { passwordGrantPayload } from "./payloads";
 
+//Missing/incorrect field cases for the Password Grant flow: each entry supplies a
+//ready-to-send payload and the response-check helper matching its expected error
 export const invalidCasesForPasswordGrant: Array<{
   title: string;
   stepLabel: string;
@@ -75,6 +77,8 @@ export const invalidCasesForPasswordGrant: Array<{
   },
 ];
 
+//Missing/incorrect field cases for the Client Credentials Grant flow: buildPayload takes
+//a valid clientId/clientSecret pair (created in the spec) and mutates it into an invalid one
 export const invalidCasesForClientCredentialsGrant: Array<{
   title: string;
   stepLabel: string;
@@ -143,6 +147,8 @@ export const invalidCasesForClientCredentialsGrant: Array<{
   },
 ];
 
+//Missing/incorrect field cases for the Refresh Token Grant flow: buildPayload takes
+//a valid refresh token (obtained in the spec) and mutates it into an invalid one
 export const invalidCasesForRefreshTokenGrant: Array<{
   title: string;
   stepLabel: string;

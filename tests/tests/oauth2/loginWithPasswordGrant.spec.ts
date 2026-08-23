@@ -98,6 +98,7 @@ test.describe(
       });
     }
 
+    // Wrong data type (number, null, boolean, etc.) substituted into grant_type
     for (const { id, dataType, data } of invalidDataTypes) {
       test(`${id} Check logging with grant data type = ${dataType} `, async ({
         oauthController,
@@ -115,6 +116,7 @@ test.describe(
       });
     }
 
+    // Malformed/invalid email values substituted into the `email` field
     for (const { id, dataType, data, check } of testDataForInvalidEmail) {
       test(`${id} Check logging with invalid email = ${dataType} `, async ({
         oauthController,
@@ -132,6 +134,7 @@ test.describe(
       });
     }
 
+    // Wrong data type (number, null, boolean, etc.) substituted into the `password` field
     for (const { id, dataType, data, check } of invalidDataTypesForPassword) {
       test(`${id} Check logging with invalid password = ${dataType} `, async ({
         oauthController,

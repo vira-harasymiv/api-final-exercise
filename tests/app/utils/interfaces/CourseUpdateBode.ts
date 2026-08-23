@@ -1,3 +1,5 @@
+//Request body shape for PATCH /courses/{courseId} - all fields optional since a
+//test may only need to update a subset (built via CourseBuilder)
 export interface CourseUpdateBody {
   title?: string;
   description?: string;

@@ -1,15 +1,21 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
-import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class AuthController extends BaseController {
-  private tokenEndpoint = Endpoints.authEndpoint;
+  private authEndpoint = Endpoints.authEndpoint;
 
-  //POST request to receive admin's token (all arguments are not mandatory)
-  registerUser(
+  //POST request to register a new user
+  async registerUser(
     data?: { name?: string; email?: string; password?: string },
-    options?: RequestOptions,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
   ) {
-    return this.post(this.tokenEndpoint, data, options);
+    return await this.request.post(this.authEndpoint, {
+      data,
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 }

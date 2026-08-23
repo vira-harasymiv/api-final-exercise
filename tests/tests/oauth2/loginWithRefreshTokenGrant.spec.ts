@@ -107,6 +107,7 @@ test.describe(
       });
     }
 
+    // Wrong data type (number, null, boolean, etc.) substituted into grant_type
     for (const { dataType, data } of invalidDataTypes) {
       test(`Logging with grant type = ${dataType} - should be 400 error`, async ({
         oauthController,
@@ -126,6 +127,7 @@ test.describe(
       });
     }
 
+    // Wrong data type (number, null, boolean, etc.) substituted into refresh_token
     for (const { dataType, data, check } of invalidDataTypesForCredentials) {
       test(`Logging with refresh token = ${dataType} - should be 400 error`, async ({
         oauthController,

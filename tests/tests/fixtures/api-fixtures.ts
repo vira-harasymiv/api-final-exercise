@@ -7,6 +7,7 @@ import { ApiClient } from "../../app/controllers/Base/ApiClient";
 import { UserInfoController } from "../../app/controllers/UseInfoController";
 import { CoursesController } from "../../app/controllers/CoursesController";
 import { CategoriesController } from "../../app/controllers/CategoriesController";
+import { AdminController } from "../../app/controllers/AdminController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {
@@ -18,8 +19,12 @@ type Fixtures = {
   userInfoController: UserInfoController;
   coursesController: CoursesController;
   categoriesController: CategoriesController;
+  adminController: AdminController;
 };
 
+//Second fixture layer: extends the base `test` (fixture.ts) with one ready-to-use
+//controller instance per API resource, so specs just destructure what they need
+//from the test callback instead of constructing controllers themselves
 export const test = base.extend<Fixtures>({
   oauthController: async ({ request }, use) => {
     await use(new OauthController(request));
@@ -51,5 +56,9 @@ export const test = base.extend<Fixtures>({
 
   categoriesController: async ({ request }, use) => {
     await use(new CategoriesController(request));
+  },
+
+  adminController: async ({ request }, use) => {
+    await use(new AdminController(request));
   },
 });

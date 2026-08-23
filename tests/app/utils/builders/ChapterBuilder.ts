@@ -1,5 +1,7 @@
 import { ChapterUpdateBody } from "../interfaces/ChapterUpdateBody";
 
+//Fluent builder for a chapter update payload - chain the withX() setters for only the
+//fields a test needs, then call build() to get the resulting ChapterUpdateBody
 class ChapterBuilder {
   private chapter: ChapterUpdateBody = {};
 

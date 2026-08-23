@@ -1,22 +1,49 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
-import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class CategoriesController extends BaseController {
   private categoriesEndpoint = Endpoints.categoriesEndpoint;
 
   //Create a new category with POST
-  createCategory(data?: { name: string }, options?: RequestOptions) {
-    return this.post(this.categoriesEndpoint, { name: data?.name }, options);
+  async createCategory(
+    data?: { name: string },
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.post(this.categoriesEndpoint, {
+      data,
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 
   //Delete the created category
-  deleteCategory(categoryId: string, options?: RequestOptions) {
-    return this.delete(`${this.categoriesEndpoint}/${categoryId}`, options);
+  async deleteCategory(
+    categoryId: string,
+    options?: {
+      headers?: { Authorization?: string };
+      failOnStatusCode?: boolean;
+    },
+  ) {
+    return await this.request.delete(
+      `${this.categoriesEndpoint}/${categoryId}`,
+      {
+        headers: options?.headers,
+        failOnStatusCode: options?.failOnStatusCode,
+      },
+    );
   }
 
   //Get categories list
-  getListOfCategories(options?: RequestOptions) {
-    return this.get(this.categoriesEndpoint, options);
+  async getListOfCategories(options?: {
+    headers?: { Authorization?: string };
+    failOnStatusCode?: boolean;
+  }) {
+    return await this.request.get(this.categoriesEndpoint, {
+      headers: options?.headers,
+      failOnStatusCode: options?.failOnStatusCode,
+    });
   }
 }

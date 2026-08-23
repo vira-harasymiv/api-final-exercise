@@ -1,5 +1,7 @@
 import { CourseUpdateBody } from "../interfaces/CourseUpdateBode";
 
+//Fluent builder for a course update payload - chain the withX() setters for only the
+//fields a test needs, then call build() to get the resulting CourseUpdateBody
 class CourseBuilder {
   private course: CourseUpdateBody = {};
 

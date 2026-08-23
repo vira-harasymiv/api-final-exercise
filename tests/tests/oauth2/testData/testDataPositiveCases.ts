@@ -1,3 +1,5 @@
+//Valid combinations of fields for POST /clients - buildPayload takes the test's
+//randomly generated client name and adds it to each variant's fields
 export const createClientPositiveCases = [
   {
     title: "Create client using ONLY required fields",

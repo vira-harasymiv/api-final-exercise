@@ -1,6 +1,7 @@
+//Tags attached to test.describe/test blocks so subsets can be run via `--grep @tagname`
 export enum TAG {
   oauth = "@oauth",
-  negative = "@oauth",
+  negative = "@negative",
   smoke = "@smoke",
   regression = "@regression",
   passwordGrant = "@passwordGrant",
@@ -8,4 +9,5 @@ export enum TAG {
   RefreshTokenGrant = "@refreshTokenGrant",
   courses = "@courses",
   chapter = "@chapter",
+  admin = "@admin",
 }

@@ -1,6 +1,7 @@
 import { APIResponse, expect, test } from "@playwright/test";
 import { z, ZodType } from "zod";
 
+//Shared response headers expected on every API response, regardless of route
 async function generalHeaders(response: APIResponse) {
   const headers = response.headers();
   expect.soft(headers["connection"]).toBe("keep-alive");
@@ -8,6 +9,8 @@ async function generalHeaders(response: APIResponse) {
   expect.soft(headers["date"]).toBeTruthy();
   expect.soft(headers["transfer-encoding"]).toBe("chunked");
 }
+
+//Verify headers for routes rendered through Next.js RSC (adds the "rsc" Vary header) - use for most API routes
 export async function checkMandatoryHeaders(response: APIResponse) {
   await test.step("Verify headers", async () => {
     const headers = response.headers();
@@ -20,6 +23,7 @@ export async function checkMandatoryHeaders(response: APIResponse) {
   });
 }
 
+//Verify headers for routes that vary on Accept-Encoding instead of the RSC headers (e.g. OAuth/userinfo)
 export async function checkAcceptEncodingHeaders(response: APIResponse) {
   await test.step("Verify headers", async () => {
     const headers = response.headers();
@@ -28,6 +32,7 @@ export async function checkAcceptEncodingHeaders(response: APIResponse) {
   });
 }
 
+//Assert a 400 Bad Request response, including mandatory headers
 export async function checkBadStatusCode(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify response", async () => {
@@ -37,6 +42,7 @@ export async function checkBadStatusCode(response: APIResponse) {
   });
 }
 
+//Assert a 404 Not Found response, including mandatory headers
 export async function checkNotFoundStatusCode(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify response", async () => {
@@ -46,6 +52,7 @@ export async function checkNotFoundStatusCode(response: APIResponse) {
   });
 }
 
+//Assert a 401 Unauthorized response (uses Accept-Encoding headers, not the RSC ones)
 export async function checkUnauthorizedStatusCode(response: APIResponse) {
   const json = await response.json();
   await checkAcceptEncodingHeaders(response);
@@ -54,6 +61,7 @@ export async function checkUnauthorizedStatusCode(response: APIResponse) {
   expect.soft(json.error).toBe("Unauthorized");
 }
 
+//Assert a 200 OK response, including mandatory headers
 export async function checkOKStatusCode(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is 200 OK", async () => {
@@ -62,6 +70,7 @@ export async function checkOKStatusCode(response: APIResponse) {
   });
 }
 
+//Assert a 201 Created response, including mandatory headers
 export async function checkCreatedStatusCode(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is 201 Created", async () => {
@@ -70,6 +79,7 @@ export async function checkCreatedStatusCode(response: APIResponse) {
   });
 }
 
+//Assert a 403 Forbidden response, including mandatory headers
 export async function checkForbiddenStatusCode(response: APIResponse) {
   await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is  403 Forbidden", async () => {
@@ -78,6 +88,7 @@ export async function checkForbiddenStatusCode(response: APIResponse) {
   });
 }
 
+//Validate a JSON body against a Zod schema; used to catch response shape/type regressions
 export async function checkSchema<Schema extends ZodType>(
   json: z.infer<Schema>,
   schema: Schema,
