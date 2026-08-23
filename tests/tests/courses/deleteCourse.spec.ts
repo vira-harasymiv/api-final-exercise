@@ -106,9 +106,9 @@ test.describe(
 );
 
 //!Delete course by non-existing ID - 500 ERROR
-//Negative tests for deleting a course using non-existing and deleted course ID
+//Negative tests for deleting a course using non-existing ID
 test.describe(
-  "DELETE /{courseId} - delete non-existing and deleted course ID: should be error",
+  "DELETE /{courseId} - delete a course using non-existing course ID: should be error",
   { tag: [TAG.courses, TAG.negative, TAG.regression] },
   () => {
     test("Delete course using non-existing - should be error", async ({

@@ -4,8 +4,10 @@ import { ChapterBuilder } from "../../app/utils/builders/ChapterBuilder";
 import {
   checkBadStatusCode,
   checkOKStatusCode,
+  checkSchema,
 } from "../../app/utils/general-expect-helpers";
 import { TAG } from "../../app/utils/tags";
+import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
 //Positive test scenario for the course unpublish
 test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be successful", () => {
@@ -96,8 +98,19 @@ test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be s
         });
 
       await checkOKStatusCode(response);
+
       const json = await response.json();
-      expect(json.isPublished).toBe(false);
+
+      await checkSchema(
+        json,
+        courseCreatedSchema,
+        "Course JSON does NOT match the schema",
+      );
+
+      expect.soft(json.isPublished).toBe(false);
+      expect.soft(json.description.length).toBeGreaterThan(0);
+      expect.soft(json.imageUrl.length).toBeGreaterThan(0);
+      expect.soft(json.price.length).toBeGreaterThan(0);
     },
   );
 });

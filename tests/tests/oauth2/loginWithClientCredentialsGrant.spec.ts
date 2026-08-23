@@ -118,12 +118,11 @@ test.describe(
   () => {
     let clientId: string;
     let clientSecret: string;
-    let clientCredentialsPayload: Object;
 
     test.beforeEach(async ({ clientsController, randomString }) => {
       const responseCreate =
         await test.step("Create a new client", async () => {
-          return clientsController.createClient(
+          return await clientsController.createClient(
             {
               name: randomString,
               grants: ["client_credentials"],
@@ -135,12 +134,6 @@ test.describe(
       const jsonCreate = await responseCreate.json();
       clientId = jsonCreate.clientId;
       clientSecret = jsonCreate.clientSecret;
-
-      clientCredentialsPayload = {
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: "client_credentials",
-      };
     });
 
     test.afterEach(
@@ -175,6 +168,7 @@ test.describe(
       });
     }
 
+    // Wrong data type (number, null, array, etc.) substituted into client_id
     for (const { dataType, data, check } of invalidDataTypesForCredentials) {
       test(`Logging with client ID = ${dataType} - should be 400 error`, async ({
         oauthController,
@@ -195,6 +189,7 @@ test.describe(
       });
     }
 
+    // Same invalid data types, this time substituted into client_secret
     for (const { dataType, data, check } of invalidDataTypesForCredentials) {
       test(`Logging with Client Secret = ${dataType} - should be 400 error`, async ({
         oauthController,
@@ -206,7 +201,7 @@ test.describe(
         };
 
         const response =
-          await test.step(`Take token with client ID = ${dataType}`, async () => {
+          await test.step(`Take token with client secret = ${dataType}`, async () => {
             return await oauthController.withClientIdAndSecret(payload as any, {
               failOnStatusCode: false,
             });
@@ -215,6 +210,7 @@ test.describe(
       });
     }
 
+    // Invalid data types substituted into grant_type
     for (const { dataType, data } of invalidDataTypes) {
       test(`Logging with grant type = ${dataType} - should be 400 error`, async ({
         oauthController,

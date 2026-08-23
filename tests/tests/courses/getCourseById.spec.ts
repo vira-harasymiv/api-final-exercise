@@ -79,7 +79,7 @@ test.describe(
 
       await checkNotFoundStatusCode(response);
 
-      test.step("Check if error message", async () => {
+      test.step("Check the error message", async () => {
         const json = await response.json();
         expect.soft(json.error).toBe("Course not found");
       });

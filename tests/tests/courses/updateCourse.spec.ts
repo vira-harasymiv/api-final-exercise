@@ -2,7 +2,6 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import { CourseBuilder } from "../../app/utils/builders/CourseBuilder";
 import {
-  checkBadStatusCode,
   checkForbiddenStatusCode,
   checkOKStatusCode,
   checkSchema,

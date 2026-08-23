@@ -5,9 +5,11 @@ import {
   checkBadStatusCode,
   checkNotFoundStatusCode,
   checkOKStatusCode,
+  checkSchema,
   checkUnauthorizedStatusCode,
 } from "../../app/utils/general-expect-helpers";
 import { TAG } from "../../app/utils/tags";
+import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
 //Positive and negative tests of publish/unpublish a course
 test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
@@ -213,7 +215,17 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
       await checkOKStatusCode(response);
 
       const json = await response.json();
-      expect(json.isPublished).toBe(true);
+
+      await checkSchema(
+        json,
+        courseCreatedSchema,
+        "Course JSON does NOT match the schema",
+      );
+
+      expect.soft(json.isPublished).toBe(true);
+      expect.soft(json.description.length).toBeGreaterThan(0);
+      expect.soft(json.imageUrl.length).toBeGreaterThan(0);
+      expect.soft(json.price.length).toBeGreaterThan(0);
     },
   );
 
