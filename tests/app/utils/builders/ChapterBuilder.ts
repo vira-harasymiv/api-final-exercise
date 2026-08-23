@@ -1,4 +1,4 @@
-import { ChapterUpdateBody } from "../interfaces";
+import { ChapterUpdateBody } from "../interfaces/ChapterUpdateBody";
 
 class ChapterBuilder {
   private chapter: ChapterUpdateBody = {};

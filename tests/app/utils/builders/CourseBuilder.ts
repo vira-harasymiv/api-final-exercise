@@ -1,4 +1,4 @@
-import { CourseUpdateBody } from "../interfaces";
+import { CourseUpdateBody } from "../interfaces/CourseUpdateBode";
 
 class CourseBuilder {
   private course: CourseUpdateBody = {};

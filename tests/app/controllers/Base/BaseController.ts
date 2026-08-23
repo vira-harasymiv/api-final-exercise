@@ -1,5 +1,5 @@
 import { APIRequestContext } from "@playwright/test";
-import { RequestOptions } from "../../utils/interfaces";
+import { RequestOptions } from "../../utils/interfaces/RequestOptions";
 
 export class BaseController {
   protected request: APIRequestContext;
