@@ -1,6 +1,6 @@
 import { BaseController } from "./Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
-import { RequestOptions } from "../utils/interfaces";
+import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class UserInfoController extends BaseController {
   private userInfoEndpoint = Endpoints.userInfoEndpoint;

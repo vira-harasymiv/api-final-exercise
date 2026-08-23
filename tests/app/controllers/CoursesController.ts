@@ -1,10 +1,8 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
-import {
-  CourseUpdateBody,
-  ChapterUpdateBody,
-  RequestOptions,
-} from "../utils/interfaces";
+import { ChapterUpdateBody } from "../utils/interfaces/ChapterUpdateBody";
+import { CourseUpdateBody } from "../utils/interfaces/CourseUpdateBode";
+import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class CoursesController extends BaseController {
   private coursesEndpoint = Endpoints.coursesEndpoint;

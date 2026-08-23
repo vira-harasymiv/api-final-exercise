@@ -1,6 +1,6 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
-import { RequestOptions } from "../utils/interfaces";
+import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class CategoriesController extends BaseController {
   private categoriesEndpoint = Endpoints.categoriesEndpoint;

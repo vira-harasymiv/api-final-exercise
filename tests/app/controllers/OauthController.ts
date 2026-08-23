@@ -1,7 +1,7 @@
 import { BaseController } from "../controllers/Base/BaseController";
 import { Endpoints } from "../utils/Endpoints";
 import { passwordGrantPayload } from "../../tests/oauth2/testData/payloads";
-import { RequestOptions } from "../utils/interfaces";
+import { RequestOptions } from "../utils/interfaces/RequestOptions";
 
 export class OauthController extends BaseController {
   private tokenEndpoint = Endpoints.tokenEndpoint;
@@ -50,7 +50,7 @@ export class OauthController extends BaseController {
     return this.post(this.tokenEndpoint, data, options);
   }
 
-  //POST request to receive admin's token using Password Grant (all arguments are NOT mandatory)
+  //POST request to receive admin's token using Password Grant
   async takeAdminToken() {
     const response = await this.post(this.tokenEndpoint, passwordGrantPayload, {
       failOnStatusCode: true,
