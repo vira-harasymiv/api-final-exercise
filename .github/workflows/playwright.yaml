@@ -1,9 +1,36 @@
-name: Playwright Tests
+name: run API  Tests
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      url-options:
+        description: "URL of the API to test"
+        required: true
+        default: "http://localhost:3000"
+        type: choice
+        options:
+          - "http://localhost:3000"
+          - "https://api.example.com"
+      url:
+        description: "URL of the API to test"
+        required: true
+        default: "http://localhost:3000"
+        type: string
+
+      isReportNeeded:
+        description: "URL of the API to test"
+        required: true
+        default: true
+        type: boolean
+
+      env:
+        description: "URL of the API to test"
+        required: true
+        type: environment
+
 jobs:
   test:
     timeout-minutes: 60
