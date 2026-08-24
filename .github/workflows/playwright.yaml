@@ -26,10 +26,11 @@ on:
         default: true
         type: boolean
 
-      env:
-        description: "URL of the API to test"
+      workerCount:
+        description: "How many workers to use to test"
         required: true
-        type: environment
+        default: 3
+        type: number
 
 jobs:
   test:
@@ -43,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --workers=${{github.event.inputs.workerCount}}
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
