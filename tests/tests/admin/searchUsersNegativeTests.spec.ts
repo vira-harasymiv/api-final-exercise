@@ -1,4 +1,4 @@
-import { test, expect } from "../fixtures/api-fixtures";
+import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
   checkForbiddenStatusCode,
