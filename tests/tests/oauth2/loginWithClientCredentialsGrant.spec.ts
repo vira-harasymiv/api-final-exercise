@@ -1,10 +1,11 @@
-import { test } from "../fixtures/api-fixtures";
+import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
-import { checkSchema } from "../../app/utils/general-expect-helpers";
 import {
+  checkBadStatusCode,
+  checkMandatoryHeaders,
+  checkSchema,
   checkSuccessfulTokenResponse,
-  checkInvalidGrantType,
-} from "./helpers/expect-helpers";
+} from "../../app/utils/expect-helpers";
 import {
   invalidDataTypesForCredentials,
   invalidDataTypes,
@@ -40,7 +41,7 @@ test.describe(
     test.afterEach(
       "Deactivate the created client",
       async ({ clientsController }) => {
-        await test.step("Delete the created client", async () => {
+        await test.step("Deactivate the created client", async () => {
           await clientsController.deactivateClient(clientId, {
             failOnStatusCode: true,
           });
@@ -63,6 +64,7 @@ test.describe(
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkSuccessfulTokenResponse(
         response,
         { expectRefreshToken: false },
@@ -81,7 +83,7 @@ test.describe(
       oauthController,
     }) => {
       const response =
-        await test.step("Take token with using Client Credentials Grant and only required fields", async () => {
+        await test.step("Take token with using Client Credentials Grant and and optional scope field", async () => {
           return await oauthController.withClientIdAndSecret(
             {
               grant_type: "client_credentials",
@@ -93,6 +95,7 @@ test.describe(
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkSuccessfulTokenResponse(
         response,
         { expectRefreshToken: false },
@@ -139,7 +142,7 @@ test.describe(
     test.afterEach(
       "Deactivate the created clients",
       async ({ clientsController }) => {
-        await test.step("Delete the prepared test data", async () => {
+        await test.step("Deactivate the created client", async () => {
           await clientsController.deactivateClient(clientId, {
             failOnStatusCode: true,
           });
@@ -151,7 +154,9 @@ test.describe(
       title,
       stepLabel,
       buildPayload,
-      checkError,
+      checkStatusCode,
+      error,
+      errorDescription,
     } of invalidCasesForClientCredentialsGrant) {
       test(title, async ({ oauthController }) => {
         const response = await test.step(
@@ -164,12 +169,22 @@ test.describe(
               },
             ),
         );
-        await checkError(response);
+        (await checkMandatoryHeaders(response),
+          await checkStatusCode(response));
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe(error);
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
 
     // Wrong data type (number, null, array, etc.) substituted into client_id
-    for (const { dataType, data, check } of invalidDataTypesForCredentials) {
+    for (const {
+      dataType,
+      data,
+      errorDescription,
+    } of invalidDataTypesForCredentials) {
       test(`Logging with client ID = ${dataType} - should be 400 error`, async ({
         oauthController,
       }) => {
@@ -185,12 +200,22 @@ test.describe(
               failOnStatusCode: false,
             });
           });
-        await check(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
 
     // Same invalid data types, this time substituted into client_secret
-    for (const { dataType, data, check } of invalidDataTypesForCredentials) {
+    for (const {
+      dataType,
+      data,
+      errorDescription,
+    } of invalidDataTypesForCredentials) {
       test(`Logging with Client Secret = ${dataType} - should be 400 error`, async ({
         oauthController,
       }) => {
@@ -206,7 +231,13 @@ test.describe(
               failOnStatusCode: false,
             });
           });
-        await check(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
 
@@ -227,7 +258,17 @@ test.describe(
               failOnStatusCode: false,
             });
           });
-        await checkInvalidGrantType(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect
+            .soft(json.error_description)
+            .toBe(
+              "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
+            );
+        });
       });
     }
   },

@@ -1,11 +1,12 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
   checkBadStatusCode,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
-import { userSchema } from "../../app/json-schemas/userSchemas";
+} from "../../app/utils/expect-helpers";
 import {
   invalidDataTypesForEmail,
   invalidDataTypesForIsActive,
@@ -49,6 +50,7 @@ test.describe(
               name: data,
             });
           });
+        await checkMandatoryHeaders(response);
         await checkBadStatusCode(response);
         const json = await response.json();
         await test.step("Verify error message", async () => {
@@ -67,6 +69,7 @@ test.describe(
               email: data,
             });
           });
+        await checkMandatoryHeaders(response);
         await checkBadStatusCode(response);
         const json = await response.json();
         await test.step("Verify error message", async () => {
@@ -85,6 +88,7 @@ test.describe(
               isActive: data,
             });
           });
+        await checkMandatoryHeaders(response);
         await checkBadStatusCode(response);
         const json = await response.json();
         await test.step("Verify error message", async () => {
@@ -104,6 +108,8 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
       await test.step("Verify error message", async () => {
@@ -122,6 +128,8 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
       await test.step("Verify error message", async () => {
@@ -140,6 +148,8 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
       await test.step("Verify the error message", async () => {
@@ -180,6 +190,8 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
+
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
     });
 
@@ -197,6 +209,8 @@ test.describe(
             },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
     });
   },

@@ -1,11 +1,7 @@
-import { checkBadStatusCode } from "../../../app/utils/general-expect-helpers";
 import {
-  checkInvalidGrantType,
-  checkUnauthorizedStatusCodeForRefreshToken,
-  checkEmptyProperty,
-  checkUnauthorizedStatusCodeForPasswordGrant,
-  checkUnauthorizedStatusCodeForCredentialsGrant,
-} from "../helpers/expect-helpers";
+  checkBadStatusCode,
+  checkUnauthorizedStatusCode,
+} from "../../../app/utils/expect-helpers";
 import { passwordGrantPayload } from "./payloads";
 
 //Missing/incorrect field cases for the Password Grant flow: each entry supplies a
@@ -14,7 +10,9 @@ export const invalidCasesForPasswordGrant: Array<{
   title: string;
   stepLabel: string;
   payload: Record<string, string | undefined>;
-  checkError: (response: any) => Promise<void>;
+  checkStatusCode: (response: any) => Promise<void>;
+  error: string;
+  errorDescription: string;
 }> = [
   {
     title: "Logging without grant_type - should be 400 error",
@@ -23,7 +21,10 @@ export const invalidCasesForPasswordGrant: Array<{
       email: process.env.ADMIN_EMAIL,
       password: process.env.ADMIN_PASSWORD,
     },
-    checkError: checkInvalidGrantType,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription:
+      "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
   },
 
   {
@@ -33,7 +34,9 @@ export const invalidCasesForPasswordGrant: Array<{
       grant_type: "password",
       email: process.env.ADMIN_EMAIL,
     },
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
 
   {
@@ -43,7 +46,9 @@ export const invalidCasesForPasswordGrant: Array<{
       grant_type: "password",
       password: process.env.ADMIN_PASSWORD,
     },
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
 
   {
@@ -53,7 +58,10 @@ export const invalidCasesForPasswordGrant: Array<{
       ...passwordGrantPayload,
       grant_type: "admin",
     },
-    checkError: checkInvalidGrantType,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription:
+      "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
   },
 
   {
@@ -63,7 +71,9 @@ export const invalidCasesForPasswordGrant: Array<{
       ...passwordGrantPayload,
       email: "non-existent-email@mail.com",
     },
-    checkError: checkUnauthorizedStatusCodeForPasswordGrant,
+    checkStatusCode: checkUnauthorizedStatusCode,
+    error: "invalid_grant",
+    errorDescription: "Invalid email or password",
   },
 
   {
@@ -73,7 +83,9 @@ export const invalidCasesForPasswordGrant: Array<{
       ...passwordGrantPayload,
       password: "admin",
     },
-    checkError: checkUnauthorizedStatusCodeForPasswordGrant,
+    checkStatusCode: checkUnauthorizedStatusCode,
+    error: "invalid_grant",
+    errorDescription: "Invalid email or password",
   },
 ];
 
@@ -86,7 +98,9 @@ export const invalidCasesForClientCredentialsGrant: Array<{
     clientId: string,
     clientSecret: string,
   ) => Record<string, string | undefined>;
-  checkError: (response: any) => Promise<void>;
+  checkStatusCode: (response: any) => Promise<void>;
+  error: string;
+  errorDescription: string;
 }> = [
   {
     title: "Logging without grant_type - should be 400 error",
@@ -95,8 +109,12 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: clientId,
       client_secret: clientSecret,
     }),
-    checkError: checkInvalidGrantType,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription:
+      "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
   },
+
   {
     title: "Logging without client_id - should be 400 error",
     stepLabel: "Take token without client_id property",
@@ -104,8 +122,11 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       grant_type: "client_credentials",
       client_secret: clientSecret,
     }),
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
+
   {
     title: "Logging without client_secret - should be 400 error",
     stepLabel: "Take token without client_secret property",
@@ -113,8 +134,11 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       grant_type: "client_credentials",
       client_id: clientId,
     }),
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
+
   {
     title: "Logging with incorrect grant_type - should be 400 error",
     stepLabel: "Take token with incorrect grant_type",
@@ -123,8 +147,11 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: clientId,
       client_secret: clientSecret,
     }),
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
+
   {
     title: "Logging with non-registered client_id - should be 401 error",
     stepLabel: "Take token with non-registered client_id",
@@ -133,7 +160,9 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: "00000000-0000-0000-0000-000000000000",
       client_secret: clientSecret,
     }),
-    checkError: checkUnauthorizedStatusCodeForCredentialsGrant,
+    checkStatusCode: checkUnauthorizedStatusCode,
+    error: "invalid_client",
+    errorDescription: "Invalid client credentials",
   },
   {
     title: "Logging with incorrect client_secret - should be 401 error",
@@ -143,7 +172,9 @@ export const invalidCasesForClientCredentialsGrant: Array<{
       client_id: clientId,
       client_secret: "incorrect-secret",
     }),
-    checkError: checkUnauthorizedStatusCodeForCredentialsGrant,
+    checkStatusCode: checkUnauthorizedStatusCode,
+    error: "invalid_client",
+    errorDescription: "Invalid client credentials",
   },
 ];
 
@@ -153,7 +184,9 @@ export const invalidCasesForRefreshTokenGrant: Array<{
   title: string;
   stepLabel: string;
   buildPayload: (refreshToken: string) => Record<string, string | undefined>;
-  checkError: (response: any) => Promise<void>;
+  checkStatusCode: (response: any) => Promise<void>;
+  error: string;
+  errorDescription: string;
 }> = [
   {
     title: "Logging without grant_type - should be 400 error",
@@ -161,7 +194,10 @@ export const invalidCasesForRefreshTokenGrant: Array<{
     buildPayload: (refreshToken) => ({
       refresh_token: refreshToken,
     }),
-    checkError: checkInvalidGrantType,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription:
+      "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
   },
   {
     title: "Logging without refresh token - should be 400 error",
@@ -169,7 +205,9 @@ export const invalidCasesForRefreshTokenGrant: Array<{
     buildPayload: () => ({
       grant_type: "refresh_token",
     }),
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
 
   {
@@ -179,7 +217,9 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "client_credentials",
       refresh_token: refreshToken,
     }),
-    checkError: checkBadStatusCode,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Invalid input: expected string, received undefined",
   },
   {
     title: "Logging with non-existent refresh token - should be 401 error",
@@ -188,7 +228,9 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "refresh_token",
       refresh_token: "dfdflfldfjkfjlkjkjflkdf-dfdkfjdkfkdfj",
     }),
-    checkError: checkUnauthorizedStatusCodeForRefreshToken,
+    checkStatusCode: checkUnauthorizedStatusCode,
+    error: "invalid_grant",
+    errorDescription: "Invalid refresh token",
   },
   {
     title: "Logging with empty refresh token - should be 400 error",
@@ -197,7 +239,9 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "refresh_token",
       refresh_token: "",
     }),
-    checkError: checkEmptyProperty,
+    checkStatusCode: checkBadStatusCode,
+    error: "invalid_request",
+    errorDescription: "Too small: expected string to have >=1 characters",
   },
 
   {
@@ -208,6 +252,8 @@ export const invalidCasesForRefreshTokenGrant: Array<{
       grant_type: "refresh_token",
       refresh_token: "             ",
     }),
-    checkError: checkUnauthorizedStatusCodeForRefreshToken,
+    checkStatusCode: checkUnauthorizedStatusCode,
+    error: "invalid_grant",
+    errorDescription: "Invalid refresh token",
   },
 ];

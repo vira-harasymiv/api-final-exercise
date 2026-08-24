@@ -2,11 +2,13 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import { CourseBuilder } from "../../app/utils/builders/CourseBuilder";
 import {
+  checkAcceptEncodingHeaders,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
 //Update course by ID: positive tests
@@ -81,6 +83,7 @@ test.describe(
           });
         });
 
+      await checkMandatoryHeaders(responseUpdate);
       await checkOKStatusCode(responseUpdate);
 
       const json = await responseUpdate.json();
@@ -127,6 +130,7 @@ test.describe(
         });
 
       await checkOKStatusCode(responseUpdate);
+      await checkMandatoryHeaders(responseUpdate);
 
       const json = await responseUpdate.json();
       await checkSchema(
@@ -187,6 +191,7 @@ test.describe(
         });
 
       await checkUnauthorizedStatusCode(responseUpdate);
+      await checkAcceptEncodingHeaders(responseUpdate);
     });
 
     test("Update a course without admin permission - should be 403 error", async ({
@@ -202,6 +207,7 @@ test.describe(
         });
 
       await checkForbiddenStatusCode(responseUpdate);
+      await checkMandatoryHeaders(responseUpdate);
     });
   },
 );

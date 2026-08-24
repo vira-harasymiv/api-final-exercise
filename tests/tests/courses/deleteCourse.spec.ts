@@ -1,11 +1,13 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkNotFoundStatusCode,
   checkOKStatusCode,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 
 //Positive test cases - deleting a course
 test.describe(
@@ -35,6 +37,7 @@ test.describe(
             failOnStatusCode: true,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
 
       const json = await response.json();
@@ -47,6 +50,7 @@ test.describe(
         const responseGet = await coursesController.getCourseById(courseId, {
           failOnStatusCode: false,
         });
+        await checkMandatoryHeaders(response);
         await checkNotFoundStatusCode(responseGet);
       });
     });
@@ -86,6 +90,7 @@ test.describe(
           });
         });
 
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
     });
 
@@ -100,6 +105,7 @@ test.describe(
           });
         });
 
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
     });
   },

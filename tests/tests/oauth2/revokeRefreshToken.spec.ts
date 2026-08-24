@@ -2,12 +2,13 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import { passwordGrantPayload } from "./testData/payloads";
 import {
+  checkAcceptEncodingHeaders,
   checkBadStatusCode,
+  checkMandatoryHeaders,
   checkNotFoundStatusCode,
   checkOKStatusCode,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
-import { checkUnauthorizedStatusCodeForRefreshToken } from "./helpers/expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { invalidDataTypes } from "./testData/testData";
 
 //Positive test scenario for checking the refresh token revoking
@@ -49,6 +50,7 @@ test.describe(
         });
 
       //!ASSERT
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
 
       await test.step("Verify of the success is true in the response", async () => {
@@ -64,7 +66,7 @@ test.describe(
           },
           { failOnStatusCode: false },
         );
-        await checkUnauthorizedStatusCodeForRefreshToken(response);
+        await checkUnauthorizedStatusCode(response);
       });
     });
   },
@@ -85,7 +87,7 @@ test.describe(
         const response = await revokeController.revokeInvalidToken({
           token: data,
         });
-        expect(response.status()).toBe(400);
+        await checkBadStatusCode(response);
       });
     }
 
@@ -98,6 +100,7 @@ test.describe(
             token: "dsdsdsdjskdjskd",
           });
         });
+      await checkMandatoryHeaders(response);
       await checkNotFoundStatusCode(response);
       const json = await response.json();
       expect.soft(json.error).toBe("Token not found");
@@ -123,6 +126,7 @@ test.describe(
             token: "any token",
           });
         });
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
     });
   },

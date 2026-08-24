@@ -2,12 +2,14 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { CourseBuilder } from "../../app/utils/builders/CourseBuilder";
 import { ChapterBuilder } from "../../app/utils/builders/ChapterBuilder";
 import {
+  checkAcceptEncodingHeaders,
   checkBadStatusCode,
+  checkMandatoryHeaders,
   checkNotFoundStatusCode,
   checkOKStatusCode,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { TAG } from "../../app/utils/tags";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
@@ -212,6 +214,7 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
           });
         });
 
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
 
       const json = await response.json();
@@ -241,6 +244,7 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
       expect.soft(json.isPublished).toBeFalsy();
@@ -262,6 +266,7 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
       expect
@@ -283,6 +288,7 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
       expect
@@ -303,6 +309,7 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
           });
         });
 
+      await checkMandatoryHeaders(response);
       await checkNotFoundStatusCode(response);
       const json = await response.json();
       expect.soft(json.error).toBe("Not found");
@@ -329,6 +336,7 @@ test.describe(
           });
         });
 
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
     });
   },

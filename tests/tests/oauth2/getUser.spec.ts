@@ -3,7 +3,9 @@ import { TAG } from "../../app/utils/tags";
 import {
   checkUnauthorizedStatusCode,
   checkOKStatusCode,
-} from "../../app/utils/general-expect-helpers";
+  checkMandatoryHeaders,
+  checkAcceptEncodingHeaders,
+} from "../../app/utils/expect-helpers";
 
 //Positive smoke tests for getting client's and admin's info
 test.describe(
@@ -47,6 +49,7 @@ test.describe(
             failOnStatusCode: true,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Verify response properties", async () => {
         const json = await response.json();
@@ -63,6 +66,7 @@ test.describe(
             failOnStatusCode: true,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Verify response properties", async () => {
         const json = await response.json();
@@ -89,7 +93,12 @@ test.describe(
           });
         });
 
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
   },
 );

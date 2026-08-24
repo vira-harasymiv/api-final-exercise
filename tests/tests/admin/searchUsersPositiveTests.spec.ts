@@ -1,9 +1,10 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { userSearchResultSchema } from "../../app/json-schemas/userSchemas";
 import { faker } from "@faker-js/faker";
 
@@ -41,6 +42,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if 1 result is returned as the email is unique", async () => {
         expect.soft(json.length).toBe(1);
@@ -65,6 +67,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if the name OR email properties contain the searched letter", async () => {
         for (const user of json) {
@@ -95,6 +98,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if the name OR email properties contain the searched letters", async () => {
         for (const user of json) {
@@ -125,6 +129,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if the empty array is received", async () => {
         expect(json).toEqual([]);
@@ -167,6 +172,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if the one result is returned as the user's name is unique", async () => {
         expect.soft(json.length).toBe(1);
@@ -191,6 +197,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if the name OR email properties contain the searched letter", async () => {
         for (const user of json) {
@@ -222,6 +229,7 @@ test.describe(
           );
         });
       const json = await response.json();
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       await test.step("Observe if the name OR email properties contain the searched letters", async () => {
         for (const user of json) {

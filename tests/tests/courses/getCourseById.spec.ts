@@ -1,10 +1,11 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkMandatoryHeaders,
   checkNotFoundStatusCode,
   checkOKStatusCode,
   checkSchema,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { courseSchema } from "../../app/json-schemas/courseSchemas";
 
 //Positive tests for getting a course by iD
@@ -46,6 +47,7 @@ test.describe(
         });
       });
 
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
 
       const json = await response.json();
@@ -77,6 +79,7 @@ test.describe(
           });
         });
 
+      await checkMandatoryHeaders(response);
       await checkNotFoundStatusCode(response);
 
       test.step("Check the error message", async () => {

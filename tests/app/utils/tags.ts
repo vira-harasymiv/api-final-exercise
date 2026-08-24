@@ -10,4 +10,5 @@ export enum TAG {
   courses = "@courses",
   chapter = "@chapter",
   admin = "@admin",
+  uploadFile = "@uploadFile",
 }

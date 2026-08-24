@@ -1,10 +1,12 @@
-import { test } from "../fixtures/api-fixtures";
+import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
+  checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { oauthClientListSchema } from "../../app/json-schemas/oauthSchemas";
 
 //Poitive tests - get clients
@@ -20,6 +22,7 @@ test.describe(
           return await clientsController.getClients({ failOnStatusCode: true });
         });
 
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(
@@ -47,7 +50,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
   },
 );

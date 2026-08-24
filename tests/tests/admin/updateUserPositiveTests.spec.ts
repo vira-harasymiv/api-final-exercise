@@ -1,9 +1,10 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { userSchema } from "../../app/json-schemas/userSchemas";
 
 //Update user by admin: positive tests
@@ -46,6 +47,8 @@ test.describe(
             { failOnStatusCode: true },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(
@@ -74,6 +77,8 @@ test.describe(
             { failOnStatusCode: true },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(
@@ -97,6 +102,8 @@ test.describe(
           { failOnStatusCode: true },
         );
       });
+
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(
@@ -128,6 +135,8 @@ test.describe(
             { failOnStatusCode: true },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(

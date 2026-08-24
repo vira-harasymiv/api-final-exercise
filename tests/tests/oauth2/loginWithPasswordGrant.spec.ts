@@ -1,10 +1,11 @@
-import { test } from "../fixtures/api-fixtures";
+import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
-import { checkSchema } from "../../app/utils/general-expect-helpers";
 import {
+  checkSchema,
   checkSuccessfulTokenResponse,
-  checkInvalidGrantType,
-} from "./helpers/expect-helpers";
+  checkMandatoryHeaders,
+  checkBadStatusCode,
+} from "../../app/utils/expect-helpers";
 import {
   passwordGrantPayload,
   passwordGrantPayloadWithScope,
@@ -34,6 +35,7 @@ test.describe(
           });
         });
 
+      await checkMandatoryHeaders(response);
       await checkSuccessfulTokenResponse(
         response,
         { expectRefreshToken: true },
@@ -59,6 +61,7 @@ test.describe(
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkSuccessfulTokenResponse(
         response,
         { expectRefreshToken: true },
@@ -86,7 +89,9 @@ test.describe(
       title,
       stepLabel,
       payload,
-      checkError,
+      checkStatusCode,
+      error,
+      errorDescription,
     } of invalidCasesForPasswordGrant) {
       test(title, async ({ oauthController }) => {
         const response = await test.step(stepLabel, async () => {
@@ -94,7 +99,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
-        await checkError(response);
+        await checkStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe(error);
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
 
@@ -112,12 +122,27 @@ test.describe(
           await test.step(`Login with grant data type = ${dataType}`, async () => {
             return await oauthController.withInvalidPasswordGrant(payload);
           });
-        await checkInvalidGrantType(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect
+            .soft(json.error_description)
+            .toBe(
+              "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
+            );
+        });
       });
     }
 
     // Malformed/invalid email values substituted into the `email` field
-    for (const { id, dataType, data, check } of testDataForInvalidEmail) {
+    for (const {
+      id,
+      dataType,
+      data,
+      error_description,
+    } of testDataForInvalidEmail) {
       test(`${id} Check logging with invalid email = ${dataType} `, async ({
         oauthController,
       }) => {
@@ -130,12 +155,22 @@ test.describe(
           await test.step(`Login with invalid email = ${dataType}`, async () => {
             return await oauthController.withInvalidPasswordGrant(payload);
           });
-        await check(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check error message in the response", async () => {
+          const json = await response.json();
+          expect.soft(json.error_description).toBe(error_description);
+        });
       });
     }
 
     // Wrong data type (number, null, boolean, etc.) substituted into the `password` field
-    for (const { id, dataType, data, check } of invalidDataTypesForPassword) {
+    for (const {
+      id,
+      dataType,
+      data,
+      errorDescription,
+    } of invalidDataTypesForPassword) {
       test(`${id} Check logging with invalid password = ${dataType} `, async ({
         oauthController,
       }) => {
@@ -148,7 +183,13 @@ test.describe(
           await test.step(`Login with invalid password = ${dataType}`, async () => {
             return await oauthController.withInvalidPasswordGrant(payload);
           });
-        await check(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
   },

@@ -3,9 +3,10 @@ import { CourseBuilder } from "../../app/utils/builders/CourseBuilder";
 import { ChapterBuilder } from "../../app/utils/builders/ChapterBuilder";
 import {
   checkBadStatusCode,
+  checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { TAG } from "../../app/utils/tags";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
@@ -97,6 +98,7 @@ test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be s
           });
         });
 
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
 
       const json = await response.json();

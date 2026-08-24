@@ -1,11 +1,12 @@
-import { test } from "../fixtures/api-fixtures";
+import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
-import { checkSchema } from "../../app/utils/general-expect-helpers";
 import {
+  checkSchema,
   checkSuccessfulTokenResponse,
-  checkInvalidGrantType,
-  checkUnauthorizedStatusCodeForRefreshToken,
-} from "./helpers/expect-helpers";
+  checkMandatoryHeaders,
+  checkBadStatusCode,
+  checkUnauthorizedStatusCode,
+} from "../../app/utils/expect-helpers";
 import { passwordGrantPayload } from "./testData/payloads";
 import {
   invalidDataTypes,
@@ -48,6 +49,7 @@ test.describe(
           );
         });
 
+      await checkMandatoryHeaders(response);
       await checkSuccessfulTokenResponse(
         response,
         { expectRefreshToken: true },
@@ -90,7 +92,9 @@ test.describe(
       title,
       stepLabel,
       buildPayload,
-      checkError,
+      checkStatusCode,
+      error,
+      errorDescription,
     } of invalidCasesForRefreshTokenGrant) {
       test(title, async ({ oauthController }) => {
         const response = await test.step(
@@ -103,7 +107,13 @@ test.describe(
               },
             ),
         );
-        await checkError(response);
+        await checkMandatoryHeaders(response);
+        await checkStatusCode(response);
+        await test.step("Verify the error message in the response", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe(error);
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
 
@@ -123,12 +133,26 @@ test.describe(
               failOnStatusCode: false,
             });
           });
-        await checkInvalidGrantType(response);
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect
+            .soft(json.error_description)
+            .toBe(
+              "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
+            );
+        });
       });
     }
 
     // Wrong data type (number, null, boolean, etc.) substituted into refresh_token
-    for (const { dataType, data, check } of invalidDataTypesForCredentials) {
+    for (const {
+      dataType,
+      data,
+      errorDescription,
+    } of invalidDataTypesForCredentials) {
       test(`Logging with refresh token = ${dataType} - should be 400 error`, async ({
         oauthController,
       }) => {
@@ -143,7 +167,14 @@ test.describe(
               failOnStatusCode: false,
             });
           });
-        await check(response);
+
+        await checkMandatoryHeaders(response);
+        await checkBadStatusCode(response);
+        await test.step("Check the error message", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("invalid_request");
+          expect.soft(json.error_description).toBe(errorDescription);
+        });
       });
     }
 
@@ -160,7 +191,11 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
-      await checkUnauthorizedStatusCodeForRefreshToken(response);
+      await checkMandatoryHeaders(response);
+      await checkUnauthorizedStatusCode(response);
+      const json = await response.json();
+      expect.soft(json.error).toBe("invalid_grant");
+      expect.soft(json.error_description).toContain("Invalid refresh token");
     });
   },
 );

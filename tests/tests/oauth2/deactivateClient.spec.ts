@@ -1,11 +1,13 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkNotFoundStatusCode,
   checkOKStatusCode,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 
 //Positive tests for checking the client deleting
 test.describe(
@@ -30,13 +32,14 @@ test.describe(
     test(
       "Deactivate created client by admin - it should be successful",
       { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
-      async ({ clientsController, userInfoController }) => {
+      async ({ clientsController }) => {
         const response =
           await test.step("Deactivate client by admin", async () => {
             return await clientsController.deactivateClient(clientId, {
               failOnStatusCode: true,
             });
           });
+        await checkMandatoryHeaders(response);
         await checkOKStatusCode(response);
         await test.step("Verify if the success message is true", async () => {
           const json = await response.json();
@@ -115,7 +118,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Client with write permission can not deactivate admin: 403 error", async ({
@@ -128,7 +136,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Client with read permission can not deactivate admin: 403 error", async ({
@@ -141,7 +154,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Client with read permission can not deactivate client with write permission: 403 error", async ({
@@ -157,7 +175,12 @@ test.describe(
             },
           );
         });
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Client with write permission can not deactivate client with read permission: 403 error", async ({
@@ -170,7 +193,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Delete any client by ID without auth: 401 error", async ({
@@ -182,7 +210,12 @@ test.describe(
             failOnStatusCode: false,
           });
         });
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
 
     //! 403 Status Code (instead of 404) is received after deleting client by non-existing ID. It should be 404 according to the doc
@@ -199,6 +232,7 @@ test.describe(
             },
           );
         });
+      await checkMandatoryHeaders(response);
       await checkNotFoundStatusCode(response);
     });
   },

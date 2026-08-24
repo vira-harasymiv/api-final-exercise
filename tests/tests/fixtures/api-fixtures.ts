@@ -8,6 +8,7 @@ import { UserInfoController } from "../../app/controllers/UseInfoController";
 import { CoursesController } from "../../app/controllers/CoursesController";
 import { CategoriesController } from "../../app/controllers/CategoriesController";
 import { AdminController } from "../../app/controllers/AdminController";
+import { UploadController } from "../../app/controllers/UploadController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {
@@ -20,6 +21,7 @@ type Fixtures = {
   coursesController: CoursesController;
   categoriesController: CategoriesController;
   adminController: AdminController;
+  uploadController: UploadController;
 };
 
 //Second fixture layer: extends the base `test` (fixture.ts) with one ready-to-use
@@ -60,5 +62,9 @@ export const test = base.extend<Fixtures>({
 
   adminController: async ({ request }, use) => {
     await use(new AdminController(request));
+  },
+
+  uploadController: async ({ request }, use) => {
+    await use(new UploadController(request));
   },
 });

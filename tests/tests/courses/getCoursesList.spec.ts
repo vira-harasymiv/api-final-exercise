@@ -1,9 +1,10 @@
 import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { coursesListResponseSchema } from "../../app/json-schemas/courseSchemas";
 
 //Positive tests for getting the list of courses
@@ -17,6 +18,7 @@ test.describe(
       const response = await test.step("Get the list of courses", async () => {
         return await coursesController.getCourses({ failOnStatusCode: true });
       });
+      await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
 
       const json = await response.json();

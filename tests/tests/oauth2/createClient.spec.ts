@@ -1,12 +1,14 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
   checkBadStatusCode,
   checkCreatedStatusCode,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { oauthCreatedClientSchema } from "../../app/json-schemas/oauthSchemas";
 import { createClientPositiveCases } from "./testData/testDataPositiveCases";
 import { invalidDataTypes } from "./testData/testData";
@@ -31,6 +33,7 @@ test.describe(
         });
 
         await checkCreatedStatusCode(response);
+        await checkMandatoryHeaders(response);
 
         const json = await response.json();
         await checkSchema(
@@ -65,7 +68,12 @@ test.describe(
         await test.step("Try to create a new client without auth", async () => {
           return await clientsController.createClient({ name: "test" });
         });
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
 
     test("Create a new client without permissions - should be 403 Error", async ({
@@ -89,7 +97,12 @@ test.describe(
               },
             );
           });
+        await checkMandatoryHeaders(response);
         await checkForbiddenStatusCode(response);
+        await test.step("Check the error message received in response", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("Forbidden");
+        });
       });
     });
   },
@@ -107,7 +120,12 @@ test.describe(
         const response = await clientsController.createClientWithInvalidData({
           name: data,
         });
+        await checkMandatoryHeaders(response);
         await checkBadStatusCode(response);
+        await test.step("Check the error message received in response", async () => {
+          const json = await response.json();
+          expect.soft(json.error).toBe("Name must be at least 2 characters");
+        });
       });
     }
   },

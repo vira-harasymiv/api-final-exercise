@@ -1,9 +1,11 @@
 import { test } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 
 //Negative tests on 401/403 errors
 test.describe(
@@ -36,6 +38,7 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
     });
 
@@ -52,6 +55,8 @@ test.describe(
             },
           );
         });
+
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
     });
   },

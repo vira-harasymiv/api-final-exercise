@@ -1,12 +1,14 @@
 import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
+  checkAcceptEncodingHeaders,
   checkBadStatusCode,
   checkCreatedStatusCode,
   checkForbiddenStatusCode,
+  checkMandatoryHeaders,
   checkSchema,
   checkUnauthorizedStatusCode,
-} from "../../app/utils/general-expect-helpers";
+} from "../../app/utils/expect-helpers";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 import { invalidDataTypes } from "./testData/testData";
 
@@ -39,6 +41,7 @@ test.describe(
         );
       });
 
+      await checkMandatoryHeaders(response);
       await checkCreatedStatusCode(response);
       const json = await response.json();
       await checkSchema(
@@ -75,6 +78,7 @@ test.describe(
           await test.step(`Try to create a course using title = ${dataType}`, async () => {
             return await coursesController.createInvalidCourse({ title: data });
           });
+        await checkMandatoryHeaders(response);
         await checkBadStatusCode(response);
         const json = await response.json();
         await test.step("Verify error message", async () => {
@@ -115,6 +119,7 @@ test.describe(
             { failOnStatusCode: false },
           );
         });
+      await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
     });
 
@@ -131,6 +136,7 @@ test.describe(
             },
           );
         });
+      await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
     });
   },

@@ -34,9 +34,7 @@ export async function checkAcceptEncodingHeaders(response: APIResponse) {
 
 //Assert a 400 Bad Request response, including mandatory headers
 export async function checkBadStatusCode(response: APIResponse) {
-  await checkMandatoryHeaders(response);
   await test.step("Verify response", async () => {
-    const json = await response.json();
     expect.soft(response.status()).toBe(400);
     expect.soft(response.statusText()).toBe("Bad Request");
   });
@@ -44,9 +42,7 @@ export async function checkBadStatusCode(response: APIResponse) {
 
 //Assert a 404 Not Found response, including mandatory headers
 export async function checkNotFoundStatusCode(response: APIResponse) {
-  await checkMandatoryHeaders(response);
   await test.step("Verify response", async () => {
-    const json = await response.json();
     expect.soft(response.status()).toBe(404);
     expect.soft(response.statusText()).toBe("Not Found");
   });
@@ -54,16 +50,12 @@ export async function checkNotFoundStatusCode(response: APIResponse) {
 
 //Assert a 401 Unauthorized response (uses Accept-Encoding headers, not the RSC ones)
 export async function checkUnauthorizedStatusCode(response: APIResponse) {
-  const json = await response.json();
-  await checkAcceptEncodingHeaders(response);
   expect.soft(response.status()).toBe(401);
   expect.soft(response.statusText()).toBe("Unauthorized");
-  expect.soft(json.error).toBe("Unauthorized");
 }
 
 //Assert a 200 OK response, including mandatory headers
 export async function checkOKStatusCode(response: APIResponse) {
-  await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is 200 OK", async () => {
     expect.soft(response.status()).toBe(200);
     expect.soft(response.statusText()).toBe("OK");
@@ -72,7 +64,6 @@ export async function checkOKStatusCode(response: APIResponse) {
 
 //Assert a 201 Created response, including mandatory headers
 export async function checkCreatedStatusCode(response: APIResponse) {
-  await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is 201 Created", async () => {
     expect.soft(response.status()).toBe(201);
     expect.soft(response.statusText()).toBe("Created");
@@ -81,7 +72,6 @@ export async function checkCreatedStatusCode(response: APIResponse) {
 
 //Assert a 403 Forbidden response, including mandatory headers
 export async function checkForbiddenStatusCode(response: APIResponse) {
-  await checkMandatoryHeaders(response);
   await test.step("Verify if the status Code is  403 Forbidden", async () => {
     expect.soft(response.status()).toBe(403);
     expect.soft(response.statusText()).toBe("Forbidden");
@@ -97,5 +87,45 @@ export async function checkSchema<Schema extends ZodType>(
   await test.step("Verify that json corresponds to schema", async () => {
     const result = schema.safeParse(json);
     expect.soft(result.success, errorMessage).toBeTruthy();
+  });
+}
+
+//Check successful response for taking token by using different grants
+export async function checkSuccessfulTokenResponse(
+  response: APIResponse,
+  options: { expectRefreshToken: boolean },
+  expectedScope: string,
+) {
+  const json = await response.json();
+  await checkOKStatusCode(response);
+
+  expect.soft(json.token_type).toBe("Bearer");
+  expect.soft(json.expires_in).toBe(900);
+
+  expect.soft(json.scope).toBe(expectedScope);
+
+  options.expectRefreshToken
+    ? await checkTokens(response)
+    : await checkAccessToken(response);
+}
+
+//Used for grants that return a refresh_token - verify both tokens are present and distinct
+async function checkTokens(response: APIResponse) {
+  await test.step("Verify that access token is NOT equal to refresh token", async () => {
+    const json = await response.json();
+    expect.soft(json.access_token).toBeTruthy();
+    expect.soft(json.access_token.length).toBeGreaterThan(0);
+    expect.soft(json.refresh_token).toBeTruthy();
+    expect.soft(json.refresh_token.length).toBeGreaterThan(0);
+    expect.soft(json.access_token).not.toBe(json.refresh_token);
+  });
+}
+
+//Used for grants without a refresh_token - verify the access token is present
+async function checkAccessToken(response: APIResponse) {
+  await test.step("Verify access token", async () => {
+    const json = await response.json();
+    expect.soft(json.access_token).toBeTruthy();
+    expect.soft(json.access_token.length).toBeGreaterThan(0);
   });
 }
