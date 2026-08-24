@@ -27,7 +27,7 @@ test.describe(
               file: {
                 name: "jpeg-example",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/sample.jpg",
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
               },
             },
             { failOnStatusCode: true },
@@ -60,7 +60,7 @@ test.describe(
               file: {
                 name: "jpeg-0B",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/jpeg_0B.jpg",
+                relativePath: "tests/tests/upload/uploads/images/jpeg_0B.jpg",
               },
             },
             { failOnStatusCode: true },
@@ -88,7 +88,8 @@ test.describe(
               file: {
                 name: "jpeg-49.99MB",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/jpeg_49.99MB.jpg",
+                relativePath:
+                  "tests/tests/upload/uploads/images/jpeg_49.99MB.jpg",
               },
             },
             { failOnStatusCode: true },
@@ -114,7 +115,7 @@ test.describe(
               file: {
                 name: "test-js",
                 mimeType: mime.lookup("js"),
-                relativePath: "tests/tests/uploads/test.js",
+                relativePath: "tests/tests/upload/uploads/test.js",
               },
             },
             { failOnStatusCode: false },
@@ -139,7 +140,8 @@ test.describe(
               file: {
                 name: "jpeg-50.l MB",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/jpeg_50.1MB.jpg",
+                relativePath:
+                  "tests/tests/upload/uploads/images/jpeg_50.1MB.jpg",
               },
             },
             { failOnStatusCode: false },
@@ -159,7 +161,8 @@ test.describe(
               file: {
                 name: "jpeg-50.01 MB",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/jpeg_50.01MB.jpg",
+                relativePath:
+                  "tests/tests/upload/uploads/images/jpeg_50.01MB.jpg",
               },
             },
             { failOnStatusCode: false },
@@ -179,7 +182,7 @@ test.describe(
               file: {
                 name: "jpeg-50 MB",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/jpeg_50MB.jpg",
+                relativePath: "tests/tests/upload/uploads/images/jpeg_50MB.jpg",
               },
             },
             { failOnStatusCode: false },
@@ -206,7 +209,7 @@ test.describe(
               file: {
                 name: "",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/sample.jpg",
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
               },
             },
             { failOnStatusCode: false },
@@ -226,7 +229,7 @@ test.describe(
               file: {
                 name: "../../../etc/passwd.jpg",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/images/sample.jpg",
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
               },
             },
             { failOnStatusCode: false },
@@ -246,7 +249,7 @@ test.describe(
               file: {
                 name: "fake-image.jpg",
                 mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/uploads/docs/sample.docx",
+                relativePath: "tests/tests/upload/uploads/docs/sample.docx",
               },
             },
             { failOnStatusCode: false },
@@ -284,7 +287,7 @@ test.describe("POST /upload - upload JPEG file without auth and admin permission
             file: {
               name: "jpeg-example",
               mimeType: mime.lookup("jpeg"),
-              relativePath: "tests/tests/uploads/images/sample.jpg",
+              relativePath: "tests/tests/upload/uploads/images/sample.jpg",
             },
           },
           { failOnStatusCode: false },
@@ -304,7 +307,7 @@ test.describe("POST /upload - upload JPEG file without auth and admin permission
             file: {
               name: "jpeg-example",
               mimeType: mime.lookup("jpeg"),
-              relativePath: "tests/tests/uploads/images/sample.jpg",
+              relativePath: "tests/tests/upload/uploads/images/sample.jpg",
             },
           },
           {

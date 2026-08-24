@@ -24,7 +24,7 @@ test.describe(
               file: {
                 name: "jpeg-example",
                 mimeType: jpegMimeType,
-                relativePath: "tests/tests/uploads/images/sample.jpg",
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
               },
             },
             { failOnStatusCode: true },
