@@ -15,7 +15,7 @@ test.describe(
   { tag: [TAG.courses, TAG.smoke, TAG.regression] },
   () => {
     let courseId: string;
-    const title = "New Course";
+    const title = "New Course" + Math.floor(Math.random() * 1_000);
 
     test.beforeEach("Create a new course", async ({ coursesController }) => {
       const response = await test.step("Create a new course", async () => {

@@ -16,7 +16,7 @@ test.describe(
   "PATCH /courses/{courseId} - Update a course: should be successful",
   { tag: [TAG.courses, TAG.smoke, TAG.regression] },
   () => {
-    const courseTitle = "New Course";
+    const courseTitle = "New Course" + Math.floor(Math.random() * 1_000);
     const categoryName = "New Category" + Math.floor(Math.random() * 1_000);
     let courseId: string;
     let categoryId: string;
