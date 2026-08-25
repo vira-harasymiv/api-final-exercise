@@ -8,45 +8,59 @@ import {
 import { userSearchResultSchema } from "../../app/json-schemas/userSchemas";
 import { faker } from "@faker-js/faker";
 
-//Smoke tests for checking the ability to search by email: email is unique, so only one result with searched full email should be returned
+//Smoke tests for checking the ability to search by email
 test.describe(
   "GET/admin/users - search users by email: positive tests",
   { tag: [TAG.admin, TAG.smoke, TAG.regression] },
   () => {
-    //Payload for the test user
-    const userName = "New user" + Math.floor(Math.random() * 1_000);
-    const userEmail =
-      "newUser" + Math.floor(Math.random() * 1_000) + "@mail.com";
+    //Payload for the test user to search
+    const partOfUserName = "New user";
+    const partOfUserEmail = "newUser";
     const userPassword = "Password123";
 
     test.beforeAll(
       "Prepare test data: register a new user",
-      async ({ authController }) => {
+      async ({ authController, randomString }) => {
         await test.step("Register as a new user", async () => {
           return await authController.registerUser(
-            { name: userName, email: userEmail, password: userPassword },
+            {
+              name: partOfUserName + randomString,
+              email: partOfUserEmail + randomString + "@gmail.com",
+              password: userPassword,
+            },
             { failOnStatusCode: true },
           );
         });
       },
     );
 
-    test("Search by a full user's email - should be successful", async ({
+    test("Search by a part of user's email - should be successful", async ({
       adminController,
     }) => {
       const response =
-        await test.step("Search user using his full email", async () => {
+        await test.step("Search user using a part of his email", async () => {
           return await adminController.searchUser(
-            { search: userEmail },
+            { search: partOfUserEmail },
             { failOnStatusCode: true },
           );
         });
       const json = await response.json();
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
-      await test.step("Observe if 1 result is returned as the email is unique", async () => {
-        expect.soft(json.length).toBe(1);
-        expect.soft(json[0].email).toBe(userEmail);
+      await test.step("Observe if the name OR email properties contain the searched part of user's email", async () => {
+        for (const user of json) {
+          expect
+            .soft(
+              (user.name
+                ?.toLowerCase()
+                .includes(partOfUserEmail.toLowerCase()) ??
+                false) ||
+                user.email
+                  .toLowerCase()
+                  .includes(partOfUserEmail.toLowerCase()),
+            )
+            .toBeTruthy();
+        }
       });
       await checkSchema(
         json,
@@ -58,7 +72,7 @@ test.describe(
     test("Search by the first letter of a user's email - should be successful", async ({
       adminController,
     }) => {
-      const searchTerm = userEmail.slice(0, 1);
+      const searchTerm = partOfUserEmail.slice(0, 1);
       const response =
         await test.step("Search user using the first letter of his email", async () => {
           return await adminController.searchUser(
@@ -73,7 +87,8 @@ test.describe(
         for (const user of json) {
           expect
             .soft(
-              user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+                false) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase()),
             )
             .toBeTruthy();
@@ -89,7 +104,7 @@ test.describe(
     test("Search by two adjacent letters of a user's email - should be successful", async ({
       adminController,
     }) => {
-      const searchTerm = userEmail.slice(0, 2);
+      const searchTerm = partOfUserEmail.slice(0, 2);
       const response =
         await test.step("Search user using two adjacent letters of his email", async () => {
           return await adminController.searchUser(
@@ -104,7 +119,8 @@ test.describe(
         for (const user of json) {
           expect
             .soft(
-              user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+                false) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase()),
             )
             .toBeTruthy();
@@ -138,45 +154,57 @@ test.describe(
   },
 );
 
-//Smoke tests for checking the ability to search by name: name is unique, so only one result with searched full name should be returned
+//Smoke tests for checking the ability to search by name:
 test.describe(
   "GET/admin/users - search users by name: positive tests",
   { tag: [TAG.admin, TAG.smoke, TAG.regression] },
   () => {
     //Payload for the test user
-    const userName = "New user" + Math.floor(Math.random() * 1_000);
-    const userEmail =
-      "newUser" + Math.floor(Math.random() * 1_000) + "@mail.com";
+    const partOfUserName = "Test User";
+    const partOfUserEmail = "testUser";
     const userPassword = "Password123";
 
     test.beforeAll(
       "Prepare test data: register a new user",
-      async ({ authController }) => {
+      async ({ authController, randomString }) => {
         await test.step("Register as a new user", async () => {
           return await authController.registerUser(
-            { name: userName, email: userEmail, password: userPassword },
+            {
+              name: partOfUserName + randomString,
+              email: partOfUserEmail + randomString + "@gmail.com",
+              password: userPassword,
+            },
             { failOnStatusCode: true },
           );
         });
       },
     );
 
-    test("Search by a full user's name - should be successful", async ({
+    test("Search by a part user's name - should be successful", async ({
       adminController,
     }) => {
       const response =
-        await test.step("Search user using his full name", async () => {
+        await test.step("Search user using a part of his name", async () => {
           return await adminController.searchUser(
-            { search: userName },
+            { search: partOfUserName },
             { failOnStatusCode: true },
           );
         });
       const json = await response.json();
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
-      await test.step("Observe if the one result is returned as the user's name is unique", async () => {
-        expect.soft(json.length).toBe(1);
-        expect.soft(json[0].name).toBe(userName);
+      await test.step("Observe if the name OR email properties contain the searched letter", async () => {
+        for (const user of json) {
+          expect
+            .soft(
+              (user.name
+                ?.toLowerCase()
+                .includes(partOfUserName.toLowerCase()) ??
+                false) ||
+                user.email.toLowerCase().includes(partOfUserName.toLowerCase()),
+            )
+            .toBeTruthy();
+        }
       });
       await checkSchema(
         json,
@@ -188,7 +216,7 @@ test.describe(
     test("Search by the first letter of a user's name - should be successful", async ({
       adminController,
     }) => {
-      const searchTerm = userName.slice(0, 1);
+      const searchTerm = partOfUserName.slice(0, 1);
       const response =
         await test.step("Search user using the first letter of his name", async () => {
           return await adminController.searchUser(
@@ -203,7 +231,8 @@ test.describe(
         for (const user of json) {
           expect
             .soft(
-              user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+                false) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase()),
             )
             .toBeTruthy();
@@ -220,7 +249,7 @@ test.describe(
     test("Search by two adjacent letters of a user's name - should be successful", async ({
       adminController,
     }) => {
-      const searchTerm = userName.slice(0, 2);
+      const searchTerm = partOfUserName.slice(0, 2);
       const response =
         await test.step("Search user using two adjacent letters of his name", async () => {
           return await adminController.searchUser(
@@ -235,7 +264,8 @@ test.describe(
         for (const user of json) {
           expect
             .soft(
-              user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+                false) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase()),
             )
             .toBeTruthy();

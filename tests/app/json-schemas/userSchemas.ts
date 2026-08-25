@@ -3,7 +3,7 @@ import { z } from "zod";
 // Single user item returned by admin search
 export const userSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1),
+  name: z.string().min(1).nullable(),
   email: z.email(),
   role: z.enum(["USER", "ADMIN"]),
   isActive: z.boolean(),

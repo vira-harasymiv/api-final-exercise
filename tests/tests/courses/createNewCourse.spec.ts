@@ -20,17 +20,6 @@ test.describe(
     let courseId: string;
     const title = "New Course";
 
-    test.afterEach(
-      "Delete the created course",
-      async ({ coursesController }) => {
-        await test.step("Delete the created course", async () => {
-          await coursesController.deleteCourseById(courseId, {
-            failOnStatusCode: true,
-          });
-        });
-      },
-    );
-
     test("Create a course by admin - should be successful", async ({
       coursesController,
     }) => {

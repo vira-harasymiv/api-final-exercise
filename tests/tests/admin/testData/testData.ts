@@ -13,21 +13,21 @@ export const invalidDataTypesForEmail = [
     id: 1,
     dataType: "empty string",
     data: "",
-    message: "Failed to update user",
+    message: "Invalid email address",
   },
 
   {
     id: 2,
     dataType: "email domain",
     data: "user@",
-    message: "Failed to update user",
+    message: "Invalid email address",
   },
 
   {
     id: 3,
     dataType: "email without local part",
     data: "@example.com",
-    message: "Failed to update user",
+    message: "Invalid email address",
   },
 
   { id: 4, dataType: "null", data: null, message: "No valid fields to update" },

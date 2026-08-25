@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
 import { errorResponse } from '@/lib/errors';
 import { prisma } from '@/lib/prisma';
+import { emailSchema } from '@/lib/validations/auth';
 
 export async function PATCH(
   req: Request,
@@ -18,7 +19,16 @@ export async function PATCH(
 
   const allowed: Record<string, unknown> = {};
   if (typeof body.name === 'string') allowed.name = body.name.trim() || null;
-  if (typeof body.email === 'string') allowed.email = body.email.trim();
+  if (typeof body.email === 'string') {
+    const validatedEmail = emailSchema.safeParse(body.email.trim());
+    if (!validatedEmail.success) {
+      return NextResponse.json(
+        { error: validatedEmail.error.issues[0]?.message ?? 'Invalid email address' },
+        { status: 400 },
+      );
+    }
+    allowed.email = validatedEmail.data;
+  }
   if (typeof body.isActive === 'boolean') allowed.isActive = body.isActive;
 
   if (Object.keys(allowed).length === 0) {
