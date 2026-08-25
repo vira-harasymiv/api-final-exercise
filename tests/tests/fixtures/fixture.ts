@@ -1,7 +1,6 @@
 import {
   APIRequestContext,
   test as base,
-  expect,
   request as APIRequest,
 } from "@playwright/test";
 import { promises } from "fs";
@@ -10,13 +9,11 @@ import { faker } from "@faker-js/faker";
 type myFixture = {
   isAuthorized: boolean;
   randomString: string;
+  readClientToken: string;
+  readWriteClientToken: string;
 };
 
-//Base fixture layer: overrides Playwright's `request` so specs get an already-authorized
-//APIRequestContext by default, and adds a `randomString` fixture for unique test data
 export const test = base.extend<myFixture>({
-  //Default true - set `test.use({ isAuthorized: false })` in a describe block for
-  //unauthenticated/negative-auth specs, which get the plain, unauthenticated `request` instead
   isAuthorized: true,
   request: async ({ request, isAuthorized }, use) => {
     if (isAuthorized === true) {
@@ -31,26 +28,37 @@ export const test = base.extend<myFixture>({
       await use(request);
     }
   },
+
   //Random word + number, unique enough to avoid collisions between test runs
   randomString: async ({}, use) => {
     const random = Math.floor(Math.random() * 1_000_000);
     const title = faker.lorem.word({ length: 5 }) + random;
     await use(random + title);
   },
+
+  //Token of a client created with only the `read` scope, cached the same way as the admin token
+  readClientToken: async ({ request }, use) => {
+    const token = await getScopedClientToken(
+      request,
+      ["read"],
+      ".accessTokenRead",
+    );
+    await use(token);
+  },
+
+  //Token of a client created with the `read` and `write` scopes, cached the same way as the admin token
+  readWriteClientToken: async ({ request }, use) => {
+    const token = await getScopedClientToken(
+      request,
+      ["read", "write"],
+      ".accessTokenReadWrite",
+    );
+    await use(token);
+  },
 });
 
-//Reuse the admin access token cached in the gitignored ".accessToken" file if it's still
-//valid, to avoid logging in as admin before every test; log in and refresh the cache on
-//first run or once the cached token expires/fails validation
 async function getAccessToken(request: APIRequestContext) {
-  let accessToken: string;
-  try {
-    accessToken = await promises.readFile(".accessToken", {
-      encoding: "utf-8",
-    });
-    const isValid = await isAccessTokenValid(request, accessToken);
-    expect(isValid).toBeTruthy();
-  } catch (error) {
+  return getCachedToken(".accessToken", request, async () => {
     const response = await request.post("/api/oauth/token", {
       data: {
         grant_type: "password",
@@ -60,13 +68,64 @@ async function getAccessToken(request: APIRequestContext) {
       failOnStatusCode: true,
     });
     const json = await response.json();
-    accessToken = json.access_token;
-    await promises.writeFile(".accessToken", accessToken);
-  }
-  return accessToken;
+    return json.access_token;
+  });
 }
 
-//A cached token is valid only if the API still accepts it - checked via /userinfo
+//Reuse the token cached in `cacheFile` if it's still valid; otherwise log in as admin,
+//create a new client with the given `scopes`, log in as that client, and refresh the cache
+async function getScopedClientToken(
+  request: APIRequestContext,
+  scopes: Array<string>,
+  cacheFile: string,
+) {
+  return getCachedToken(cacheFile, request, async () => {
+    const adminToken = await getAccessToken(request);
+    const responseCreate = await request.post("/api/oauth/clients", {
+      data: { name: `fixtureClient-${scopes.join("-")}`, scopes },
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+      failOnStatusCode: true,
+    });
+    const jsonCreate = await responseCreate.json();
+
+    const responseLogin = await request.post("/api/oauth/token", {
+      data: {
+        grant_type: "client_credentials",
+        client_id: jsonCreate.clientId,
+        client_secret: jsonCreate.clientSecret,
+      },
+      failOnStatusCode: true,
+    });
+    const jsonLogin = await responseLogin.json();
+    return jsonLogin.access_token;
+  });
+}
+
+//Shared caching logic: reuse the token in `cacheFile` if it still passes /userinfo, otherwise
+//call `fetchNewToken` and (re)write the cache file - covers both an expired token and a
+//missing file (deleted cache), since a failed read falls through to fetching a new one
+async function getCachedToken(
+  cacheFile: string,
+  request: APIRequestContext,
+  fetchNewToken: () => Promise<string>,
+) {
+  try {
+    const cachedToken = await promises.readFile(cacheFile, {
+      encoding: "utf-8",
+    });
+    if (await isAccessTokenValid(request, cachedToken)) {
+      return cachedToken;
+    }
+  } catch (error) {
+    // cache file missing or unreadable - fall through to fetch a new token
+  }
+  const freshToken = await fetchNewToken();
+  await promises.writeFile(cacheFile, freshToken);
+  return freshToken;
+}
+
 async function isAccessTokenValid(
   request: APIRequestContext,
   accessToken: string,

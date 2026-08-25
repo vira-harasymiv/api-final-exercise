@@ -264,19 +264,6 @@ test.describe(
 test.describe("POST /upload - upload JPEG file without auth and admin permission", () => {
   test.use({ isAuthorized: false });
 
-  let token: string;
-
-  test.beforeAll(
-    "Take token without admin permission",
-    async ({ apiClient }) => {
-      const result = await apiClient.loginWithCredentialsOfNewClient(
-        "new client",
-        ["read", "write"],
-      );
-      token = result.token;
-    },
-  );
-
   test("Upload JPEG file without authorization - should be 401 error", async ({
     uploadController,
   }) => {
@@ -297,11 +284,12 @@ test.describe("POST /upload - upload JPEG file without auth and admin permission
     await checkUnauthorizedStatusCode(response);
   });
 
-  test("Upload JPEG file without admin permission - should be 403 error", async ({
+  test("Upload JPEG file as a client with READ permission - should be 403 error", async ({
     uploadController,
+    readClientToken,
   }) => {
     const response =
-      await test.step("Upload JPEG file without admin permission", async () => {
+      await test.step("Upload JPEG file as a client with READ permission", async () => {
         return await uploadController.uploadFile(
           {
             file: {
@@ -311,7 +299,31 @@ test.describe("POST /upload - upload JPEG file without auth and admin permission
             },
           },
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${readClientToken}` },
+            failOnStatusCode: false,
+          },
+        );
+      });
+    await checkMandatoryHeaders(response);
+    await checkForbiddenStatusCode(response);
+  });
+
+  test("Upload JPEG file as a client with READ and WRITE permissions - should be 403 error", async ({
+    uploadController,
+    readWriteClientToken,
+  }) => {
+    const response =
+      await test.step("Upload JPEG file as a client with READ and WRITE permissions", async () => {
+        return await uploadController.uploadFile(
+          {
+            file: {
+              name: "jpeg-example",
+              mimeType: mime.lookup("jpeg"),
+              relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+            },
+          },
+          {
+            headers: { Authorization: `Bearer ${readWriteClientToken}` },
             failOnStatusCode: false,
           },
         );

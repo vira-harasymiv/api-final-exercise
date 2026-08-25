@@ -150,6 +150,7 @@ test.describe(
       },
     );
 
+    //Logging without grant_type, without client_id, without client_secret, with incorrect grant_type (e.g. password), with non-registered client_id, with non-existing client_secret
     for (const {
       title,
       stepLabel,

@@ -166,19 +166,6 @@ test.describe(
   () => {
     test.use({ isAuthorized: false });
 
-    let token: string;
-
-    test.beforeAll(
-      "Take token without admin permission",
-      async ({ apiClient }) => {
-        const result = await apiClient.loginWithCredentialsOfNewClient(
-          "new client",
-          ["read", "write"],
-        );
-        token = result.token;
-      },
-    );
-
     test("Update user without auth - should be 401 error", async ({
       adminController,
     }) => {
@@ -195,16 +182,37 @@ test.describe(
       await checkUnauthorizedStatusCode(response);
     });
 
-    test("Update user without admin permission - should be 403 error", async ({
+    test("Update user as a client with READ permission - should be 403 error", async ({
       adminController,
+      readClientToken,
     }) => {
       const response =
-        await test.step("Try to update user without admin permission", async () => {
+        await test.step("Try to update user as a client with READ permission", async () => {
           return await adminController.updateUser(
             "some-user-id",
             { name: "Test" },
             {
-              headers: { Authorization: `Bearer ${token}` },
+              headers: { Authorization: `Bearer ${readClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+    });
+
+    test("Update user as a client with READ and WRITE permission - should be 403 error", async ({
+      adminController,
+      readWriteClientToken,
+    }) => {
+      const response =
+        await test.step("Try to update user as a client with READ and WRITE permission", async () => {
+          return await adminController.updateUser(
+            "some-user-id",
+            { name: "Test" },
+            {
+              headers: { Authorization: `Bearer ${readWriteClientToken}` },
               failOnStatusCode: false,
             },
           );

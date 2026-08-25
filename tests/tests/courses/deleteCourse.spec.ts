@@ -64,28 +64,12 @@ test.describe(
   () => {
     test.use({ isAuthorized: false });
 
-    let token: string;
-
-    test.beforeAll(
-      "Take token without admin permission",
-      async ({ apiClient }) => {
-        const result = await apiClient.loginWithCredentialsOfNewClient(
-          "new client",
-          ["read", "write"],
-        );
-        token = result.token;
-      },
-    );
-
-    let courseId: string;
-    const title = "New Course";
-
     test("Delete a course without auth - should be 401 error", async ({
       coursesController,
     }) => {
       const response =
         await test.step("Delete a course without auth", async () => {
-          return await coursesController.deleteCourseById("any ID", {
+          return await coursesController.deleteCourseById("any course ID", {
             failOnStatusCode: false,
           });
         });
@@ -94,13 +78,30 @@ test.describe(
       await checkUnauthorizedStatusCode(response);
     });
 
-    test("Update a course without admin permission - should be 403 error", async ({
+    test("Delete a course as a client with READ permission - should be 403 error", async ({
       coursesController,
+      readClientToken,
     }) => {
       const response =
-        await test.step("Try to delete a course without admin permission", async () => {
-          return await coursesController.deleteCourseById("any ID", {
-            headers: { Authorization: `Bearer ${token}` },
+        await test.step("Try to delete a course as a client with READ permission", async () => {
+          return await coursesController.deleteCourseById("any course ID", {
+            headers: { Authorization: `Bearer ${readClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+    });
+
+    test("Delete a course as a client with READ and WRITE permissions - should be 403 error", async ({
+      coursesController,
+      readWriteClientToken,
+    }) => {
+      const response =
+        await test.step("Try to delete a course as a client with READ and WRITE permissions", async () => {
+          return await coursesController.deleteCourseById("any course ID", {
+            headers: { Authorization: `Bearer ${readWriteClientToken}` },
             failOnStatusCode: false,
           });
         });

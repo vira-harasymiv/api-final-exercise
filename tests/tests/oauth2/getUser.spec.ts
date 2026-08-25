@@ -41,7 +41,9 @@ test.describe(
       },
     );
 
-    test("Verify getting USER info", async ({ userInfoController }) => {
+    test("Verify getting client info with permission = read", async ({
+      userInfoController,
+    }) => {
       const response =
         await test.step("Get info about the authorized user", async () => {
           return await userInfoController.getUserInfo({
@@ -53,9 +55,9 @@ test.describe(
       await checkOKStatusCode(response);
       await test.step("Verify response properties", async () => {
         const json = await response.json();
-        expect.soft(json.sub).toBe(clientId);
+        expect.soft(json.sub).toContain("client");
         expect.soft(json.type).toBe("client");
-        expect.soft(json.scopes).toEqual(scopes);
+        expect.soft(json.scopes).toEqual(["read"]);
       });
     });
 

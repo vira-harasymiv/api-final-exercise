@@ -52,8 +52,8 @@ export const invalidCasesForPasswordGrant: Array<{
   },
 
   {
-    title: "Logging with incorrect grant_type - should be 400 error",
-    stepLabel: "Login as admin with incorrect grant_type",
+    title: "Logging with non-existing grant_type - should be 400 error",
+    stepLabel: "Login as admin with non-existing grant_type",
     payload: {
       ...passwordGrantPayload,
       grant_type: "admin",
@@ -77,7 +77,7 @@ export const invalidCasesForPasswordGrant: Array<{
   },
 
   {
-    title: "Logging with incorrect password - should be 401 error",
+    title: "Logging with non-existing - should be 401 error",
     stepLabel: "Login as admin with incorrect password",
     payload: {
       ...passwordGrantPayload,
@@ -178,8 +178,7 @@ export const invalidCasesForClientCredentialsGrant: Array<{
   },
 ];
 
-//Missing/incorrect field cases for the Refresh Token Grant flow: buildPayload takes
-//a valid refresh token (obtained in the spec) and mutates it into an invalid one
+//Missing/incorrect field cases for the Refresh Token Grant flow
 export const invalidCasesForRefreshTokenGrant: Array<{
   title: string;
   stepLabel: string;

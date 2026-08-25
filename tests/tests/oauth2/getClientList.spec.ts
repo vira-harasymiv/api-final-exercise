@@ -2,6 +2,7 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { TAG } from "../../app/utils/tags";
 import {
   checkAcceptEncodingHeaders,
+  checkForbiddenStatusCode,
   checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
@@ -34,7 +35,7 @@ test.describe(
   },
 );
 
-//Negative test cases
+//Negative test cases on 401/403 errors
 test.describe(
   "GET /clients: getting all clients by non-auth admin",
   { tag: [TAG.negative, TAG.smoke, TAG.oauth] },
@@ -45,7 +46,7 @@ test.describe(
       clientsController,
     }) => {
       const response =
-        await test.step("Try to get clients list using user token", async () => {
+        await test.step("Try to get clients without authorization", async () => {
           return await clientsController.getClients({
             failOnStatusCode: false,
           });
@@ -55,6 +56,46 @@ test.describe(
       await test.step("Check the error message received in response", async () => {
         const json = await response.json();
         expect.soft(json.error).toBe("Unauthorized");
+      });
+    });
+
+    test("Take clients list by client with READ permission - should be 403 error", async ({
+      clientsController,
+      readClientToken,
+    }) => {
+      const response =
+        await test.step("Try to get clients list by client with READ permission", async () => {
+          return await clientsController.getClients({
+            headers: { Authorization: `Bearer ${readClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Take clients list by client with READ and WRITE permission - should be 403 error", async ({
+      clientsController,
+      readWriteClientToken,
+    }) => {
+      const response =
+        await test.step("Try to get clients list by client with READ and WRITE permission", async () => {
+          return await clientsController.getClients({
+            headers: { Authorization: `Bearer ${readWriteClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
       });
     });
   },

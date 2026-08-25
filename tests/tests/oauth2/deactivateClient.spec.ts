@@ -50,7 +50,7 @@ test.describe(
   },
 );
 
-//Negative tests for checking the client deleting
+//Negative tests for checking permissions to delete client
 test.describe(
   "DELETE /clients - Deactivate client by ID: negative tests",
   { tag: [TAG.oauth, TAG.negative, TAG.regression] },
@@ -217,8 +217,14 @@ test.describe(
         expect.soft(json.error).toBe("Unauthorized");
       });
     });
+  },
+);
 
-    //! 403 Status Code (instead of 404) is received after deleting client by non-existing ID. It should be 404 according to the doc
+//Negative tests (deleting client by non-existing ID)
+test.describe(
+  "DELETE /clients - Deactivate client by ID: negative tests",
+  { tag: [TAG.oauth, TAG.negative, TAG.regression] },
+  () => {
     test("Delete any client by non-existing ID: 404 error", async ({
       clientsController,
     }) => {
@@ -226,10 +232,7 @@ test.describe(
         await test.step("Try to delete any client by non-existing ID", async () => {
           return await clientsController.deactivateClient(
             "dsdsdsdsdsdsdsdsfsfsfsdfsfsfsf",
-            {
-              headers: { Authorization: `Bearer ${adminToken}` },
-              failOnStatusCode: false,
-            },
+            { failOnStatusCode: false },
           );
         });
       await checkMandatoryHeaders(response);

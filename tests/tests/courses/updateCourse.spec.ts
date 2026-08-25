@@ -162,19 +162,6 @@ test.describe(
   () => {
     test.use({ isAuthorized: false });
 
-    let token: string;
-
-    test.beforeAll(
-      "Take token without admin permission",
-      async ({ apiClient }) => {
-        const result = await apiClient.loginWithCredentialsOfNewClient(
-          "new client",
-          ["read", "write"],
-        );
-        token = result.token;
-      },
-    );
-
     test("Update a course without auth - should be 401 error", async ({
       coursesController,
     }) => {
@@ -194,14 +181,32 @@ test.describe(
       await checkAcceptEncodingHeaders(responseUpdate);
     });
 
-    test("Update a course without admin permission - should be 403 error", async ({
+    test("Update a course as a client with READ permission - should be 403 error", async ({
       coursesController,
+      readClientToken,
     }) => {
       const courseBuilder = new CourseBuilder().withPrice(100.0).build();
       const responseUpdate =
-        await test.step("Update a course without admin permission", async () => {
+        await test.step("Update a course as a client with READ permission", async () => {
           return await coursesController.updateCourse("sdsdsd", courseBuilder, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${readClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkForbiddenStatusCode(responseUpdate);
+      await checkMandatoryHeaders(responseUpdate);
+    });
+
+    test("Update a course as a client with READ and WRITE permissions - should be 403 error", async ({
+      coursesController,
+      readWriteClientToken,
+    }) => {
+      const courseBuilder = new CourseBuilder().withPrice(100.0).build();
+      const responseUpdate =
+        await test.step("Update a course as a client with READ and WRITE permissions", async () => {
+          return await coursesController.updateCourse("sdsdsd", courseBuilder, {
+            headers: { Authorization: `Bearer ${readWriteClientToken}` },
             failOnStatusCode: false,
           });
         });

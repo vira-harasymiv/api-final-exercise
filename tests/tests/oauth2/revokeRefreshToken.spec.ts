@@ -117,7 +117,7 @@ test.describe(
   () => {
     test.use({ isAuthorized: false });
 
-    test("Verify revoking refresh token by Non-Authorized user", async ({
+    test("Verify revoking refresh token without authorization", async ({
       revokeController,
     }) => {
       const response =

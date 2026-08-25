@@ -12,7 +12,7 @@ test.describe(
   "GET /courses - get the courses list: should be successful",
   { tag: [TAG.smoke, TAG.regression, TAG.courses] },
   () => {
-    test("Get the list of courses - should be successful", async ({
+    test("Get the list of courses by admin- should be successful", async ({
       coursesController,
     }) => {
       const response = await test.step("Get the list of courses", async () => {

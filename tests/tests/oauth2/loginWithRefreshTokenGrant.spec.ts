@@ -88,6 +88,7 @@ test.describe(
       token = jsonTakeToken.access_token;
     });
 
+    //Logging without grant_type/refresh token, incorrect grant_type (e.g., client_credentials instead of refresh_token), non-existent refresh token, empty refresh token, refresh token contained only spaces
     for (const {
       title,
       stepLabel,

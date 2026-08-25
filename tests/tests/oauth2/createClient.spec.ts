@@ -76,33 +76,47 @@ test.describe(
       });
     });
 
-    test("Create a new client without permissions - should be 403 Error", async ({
-      apiClient,
+    test("Create a new client with only READ permission - should be 403 Error", async ({
+      readClientToken,
       clientsController,
     }) => {
-      await test.step("Take token of a client with READ permission", async () => {
-        const result = await apiClient.loginWithCredentialsOfNewClient(
-          "OnlyRead",
-          ["read"],
-        );
-        const token = result.token;
-
-        const response =
-          await test.step("Try to create a new client with READ permission", async () => {
-            return await clientsController.createClient(
-              { name: "test" },
-              {
-                headers: { Authorization: `Bearer ${token}` },
-                failOnStatusCode: false,
-              },
-            );
-          });
-        await checkMandatoryHeaders(response);
-        await checkForbiddenStatusCode(response);
-        await test.step("Check the error message received in response", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("Forbidden");
+      const response =
+        await test.step("Try to create a new client with READ permission", async () => {
+          return await clientsController.createClient(
+            { name: "test" },
+            {
+              headers: { Authorization: `Bearer ${readClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
         });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Create a new client with only READ and WRITE permissions - should be 403 Error", async ({
+      readWriteClientToken,
+      clientsController,
+    }) => {
+      const response =
+        await test.step("Try to create a new client with READ and WRITE permissions", async () => {
+          return await clientsController.createClient(
+            { name: "test" },
+            {
+              headers: { Authorization: `Bearer ${readWriteClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
       });
     });
   },

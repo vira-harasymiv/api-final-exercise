@@ -96,24 +96,11 @@ test.describe(
   () => {
     test.use({ isAuthorized: false });
 
-    let token: string;
-
-    test.beforeAll(
-      "Take token without admin permission",
-      async ({ apiClient }) => {
-        const result = await apiClient.loginWithCredentialsOfNewClient(
-          "new client",
-          ["read", "write"],
-        );
-        token = result.token;
-      },
-    );
-
-    test("Create a course without auth - should be 401 error", async ({
+    test("Create a course without authorization - should be 401 error", async ({
       coursesController,
     }) => {
       const response =
-        await test.step("Try to create a course without auth", async () => {
+        await test.step("Try to create a course without authorization", async () => {
           return await coursesController.createCourse(
             { title: "Test" },
             { failOnStatusCode: false },
@@ -123,15 +110,34 @@ test.describe(
       await checkUnauthorizedStatusCode(response);
     });
 
-    test("Create a course without admin permission - should be 403 error", async ({
+    test("Create a course as a client with READ permission - should be 403 error", async ({
       coursesController,
+      readClientToken,
     }) => {
       const response =
-        await test.step("Try to create a course without admin permission", async () => {
+        await test.step("Try to create a course as a client with READ permission", async () => {
           return await coursesController.createCourse(
             { title: "Test" },
             {
-              headers: { Authorization: `Bearer ${token}` },
+              headers: { Authorization: `Bearer ${readClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+    });
+
+    test("Create a course as a client with READ and WRITE permission - should be 403 error", async ({
+      coursesController,
+      readWriteClientToken,
+    }) => {
+      const response =
+        await test.step("Try to create a course as a client with READ and WRITE permission", async () => {
+          return await coursesController.createCourse(
+            { title: "Test" },
+            {
+              headers: { Authorization: `Bearer ${readWriteClientToken}` },
               failOnStatusCode: false,
             },
           );
