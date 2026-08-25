@@ -15,23 +15,27 @@ test.describe(
     let mime = require("mime-types");
     const jpegMimeType = mime.lookup("jpeg");
 
-    test.beforeAll("Prepare test data", async ({ uploadController }) => {
-      //Prepare test data:
-      const response =
-        await test.step("Upload file in the JPEG format", async () => {
-          return await uploadController.uploadFile(
-            {
-              file: {
-                name: "jpeg-example",
-                mimeType: jpegMimeType,
-                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+    test.beforeAll(
+      "Prepare test data: upload JPEG file in advance",
+      async ({ uploadController }) => {
+        //Prepare test data:
+        const response =
+          await test.step("Upload file in the JPEG format", async () => {
+            return await uploadController.uploadFile(
+              {
+                file: {
+                  name: "jpeg-example",
+                  mimeType: jpegMimeType,
+                  relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+                },
               },
-            },
-            { failOnStatusCode: true },
-          );
-        });
-      jpegUrl = (await response.json()).url;
-    });
+              { failOnStatusCode: true },
+            );
+          });
+        const json = await response.json();
+        jpegUrl = json.url;
+      },
+    );
 
     test("Download file should be successful", async ({ uploadController }) => {
       const response = await test.step("Download the JPEG file", async () => {
@@ -39,6 +43,7 @@ test.describe(
           failOnStatusCode: true,
         });
       });
+
       await checkOKStatusCode(response);
       await test.step("Check headers", async () => {
         const headers = response.headers();
@@ -64,11 +69,13 @@ test.describe(
     test("Download file using non-existing path - should be 404 error", async ({
       uploadController,
     }) => {
-      const response = await test.step("Download the JPEG file", async () => {
-        return await uploadController.downloadFile("abc123.pdf", {
-          failOnStatusCode: false,
+      const response =
+        await test.step("Try to download a file using non-existing path", async () => {
+          return await uploadController.downloadFile("abc123.pdf", {
+            failOnStatusCode: false,
+          });
         });
-      });
+
       await test.step("Check headers", async () => {
         const headers = response.headers();
         expect.soft(headers["connection"]).toBe("keep-alive");

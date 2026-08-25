@@ -57,11 +57,7 @@ test.describe(
       );
 
       const json = await response.json();
-      await checkSchema(
-        json,
-        tokenResponseSchema,
-        "Refresh Token Grant Response JSON does NOT match expected schema",
-      );
+      await checkSchema(json, tokenResponseSchema);
     });
   },
 );
@@ -120,32 +116,37 @@ test.describe(
 
     // Wrong data type (number, null, boolean, etc.) substituted into grant_type
     for (const { dataType, data } of invalidDataTypes) {
-      test(`Logging with grant type = ${dataType} - should be 400 error`, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          grant_type: data,
-          refresh_token: refreshToken,
-        };
+      test(
+        `Logging with grant type = ${dataType} - should be 400 error`,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            grant_type: data,
+            refresh_token: refreshToken,
+          };
 
-        const response =
-          await test.step(`Take token with grant type = ${dataType}`, async () => {
-            return await oauthController.withRefreshTokenGrant(payload as any, {
-              failOnStatusCode: false,
+          const response =
+            await test.step(`Take token with grant type = ${dataType}`, async () => {
+              return await oauthController.withRefreshTokenGrant(
+                payload as any,
+                {
+                  failOnStatusCode: false,
+                },
+              );
             });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect
+              .soft(json.error_description)
+              .toBe(
+                "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
+              );
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect
-            .soft(json.error_description)
-            .toBe(
-              "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
-            );
-        });
-      });
+        },
+      );
     }
 
     // Wrong data type (number, null, boolean, etc.) substituted into refresh_token
@@ -154,29 +155,34 @@ test.describe(
       data,
       errorDescription,
     } of invalidDataTypesForCredentials) {
-      test(`Logging with refresh token = ${dataType} - should be 400 error`, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          grant_type: "refresh_token",
-          refresh_token: data,
-        };
+      test(
+        `Logging with refresh token = ${dataType} - should be 400 error`,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            grant_type: "refresh_token",
+            refresh_token: data,
+          };
 
-        const response =
-          await test.step(`Take token with refresh token = ${dataType}`, async () => {
-            return await oauthController.withRefreshTokenGrant(payload as any, {
-              failOnStatusCode: false,
+          const response =
+            await test.step(`Take token with refresh token = ${dataType}`, async () => {
+              return await oauthController.withRefreshTokenGrant(
+                payload as any,
+                {
+                  failOnStatusCode: false,
+                },
+              );
             });
-          });
 
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect.soft(json.error_description).toBe(errorDescription);
-        });
-      });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect.soft(json.error_description).toBe(errorDescription);
+          });
+        },
+      );
     }
 
     test("Verify logging with using access token instead of refresh token", async ({

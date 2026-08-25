@@ -57,7 +57,7 @@ test.describe(
 //NEGATIVE tests for creating course using invalid data
 test.describe(
   "POST /courses - Create a course: negative cases using invalid data",
-  { tag: [TAG.courses, TAG.negative, TAG.regression] },
+  { tag: [TAG.courses, TAG.negative, TAG.regression, TAG.invalidDataTypes] },
   () => {
     for (const { id, dataType, data } of invalidDataTypes) {
       test(`${id} Verify creating a new course with title = ${dataType}`, async ({
@@ -81,7 +81,15 @@ test.describe(
 //Negative tests for creating a course without admin permission or auth
 test.describe(
   "POST /courses - Create a course without auth or admin permission - should be 401/403 error",
-  { tag: [TAG.negative, TAG.courses, TAG.smoke, TAG.regression] },
+  {
+    tag: [
+      TAG.negative,
+      TAG.courses,
+      TAG.smoke,
+      TAG.regression,
+      TAG.permissions,
+    ],
+  },
   () => {
     test.use({ isAuthorized: false });
 
@@ -97,6 +105,10 @@ test.describe(
         });
       await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
 
     test("Create a course as a client with READ permission - should be 403 error", async ({
@@ -115,6 +127,10 @@ test.describe(
         });
       await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Create a course as a client with READ and WRITE permission - should be 403 error", async ({
@@ -133,6 +149,32 @@ test.describe(
         });
       await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Create a course as a client with READ, WRITE, and ADMIN permission - should be 403 error", async ({
+      coursesController,
+      readWriteAdminClientToken,
+    }) => {
+      const response =
+        await test.step("Try to create a course as a client with READ, WRITE, and ADMIN permissions permission", async () => {
+          return await coursesController.createCourse(
+            { title: "Test" },
+            {
+              headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
   },
 );

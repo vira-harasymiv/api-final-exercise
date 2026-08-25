@@ -2,7 +2,6 @@ import { test, expect } from "../fixtures/api-fixtures";
 import { CourseBuilder } from "../../app/utils/builders/CourseBuilder";
 import { ChapterBuilder } from "../../app/utils/builders/ChapterBuilder";
 import {
-  checkBadStatusCode,
   checkMandatoryHeaders,
   checkOKStatusCode,
   checkSchema,
@@ -29,7 +28,8 @@ test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be s
             { failOnStatusCode: true },
           );
         });
-      courseId = (await responseCreate.json()).id;
+      const jsonCreate = await responseCreate.json();
+      courseId = jsonCreate.id;
 
       await test.step("2. Update the created course so that title, description, image, price are NOT empty", async () => {
         const payload = new CourseBuilder()
@@ -50,7 +50,8 @@ test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be s
             { failOnStatusCode: true },
           );
         });
-      chapterId = (await responseAddChapter.json()).id;
+      const jsonAddChapter = await responseAddChapter.json();
+      chapterId = jsonAddChapter.id;
 
       await test.step("4. Publish the added chapter", async () => {
         const payload = new ChapterBuilder().withIsPublished(true).build();
@@ -92,7 +93,7 @@ test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be s
     { tag: [TAG.smoke, TAG.courses, TAG.regression, TAG.chapter] },
     async ({ coursesController }) => {
       const response =
-        await test.step("Unpublish the created course", async () => {
+        await test.step("Unpublish the created course - should be successful", async () => {
           return await coursesController.publishCourseById(courseId, {
             failOnStatusCode: true,
           });
@@ -103,16 +104,21 @@ test.describe("PATCH /courses/{courseId}/publish - unpublish course: should be s
 
       const json = await response.json();
 
-      await checkSchema(
-        json,
-        courseCreatedSchema,
-        "Course JSON does NOT match the schema",
-      );
+      await checkSchema(json, courseCreatedSchema);
 
-      expect.soft(json.isPublished).toBe(false);
-      expect.soft(json.description.length).toBeGreaterThan(0);
-      expect.soft(json.imageUrl.length).toBeGreaterThan(0);
-      expect.soft(json.price.length).toBeGreaterThan(0);
+      await test.step("Verify if the course has been unpublished", async () => {
+        const responseGet = await coursesController.getCourseById(courseId, {
+          failOnStatusCode: true,
+        });
+        const jsonGet = await responseGet.json();
+        const { categories, chapters, attachments, ...courseFieldsGet } =
+          jsonGet;
+        expect.soft(courseFieldsGet).toEqual(json);
+        expect.soft(jsonGet.isPublished).toBe(false);
+        expect.soft(jsonGet.description.length).toBeGreaterThan(0);
+        expect.soft(jsonGet.imageUrl.length).toBeGreaterThan(0);
+        expect.soft(jsonGet.price.length).toBeGreaterThan(0);
+      });
     },
   );
 });

@@ -14,7 +14,7 @@ import { TAG } from "../../app/utils/tags";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 
 //Positive and negative tests of publish/unpublish a course
-test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
+test.describe("PATCH /courses/{courseId}/publish - publish course: positive tests", () => {
   // Course with a published chapter, non-empty title/description/image/price
   let validCourseId: string;
   let validChapterId: string;
@@ -50,7 +50,8 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
             { failOnStatusCode: true },
           );
         });
-      validCourseId = (await responseCreate.json()).id;
+      const jsonCreate = await responseCreate.json();
+      validCourseId = jsonCreate.id;
 
       await test.step("2. Update the created course so that title, description, image, price are NOT empty", async () => {
         const payload = new CourseBuilder()
@@ -71,7 +72,8 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
             { failOnStatusCode: true },
           );
         });
-      validChapterId = (await responseAddChapter.json()).id;
+      const jsonAddChapter = await responseAddChapter.json();
+      validChapterId = jsonAddChapter.id;
 
       await test.step("4. Publish the added chapter", async () => {
         const payload = new ChapterBuilder().withIsPublished(true).build();
@@ -91,8 +93,8 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
             { failOnStatusCode: true },
           );
         });
-      courseWithUnpublishedChapterId = (await responseCreateUnpublished.json())
-        .id;
+      const jsonCreateUnpublished = await responseCreateUnpublished.json();
+      courseWithUnpublishedChapterId = jsonCreateUnpublished.id;
 
       const responseUpdateUnpublished =
         await test.step("6. Update the created course so that title, description, image, price are NOT empty", async () => {
@@ -118,7 +120,9 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
             { failOnStatusCode: true },
           );
         });
-      unpublishedChapterId = (await responseAddUnpublishedChapter.json()).id;
+      const jsonAddUnpublishedChapter =
+        await responseAddUnpublishedChapter.json();
+      unpublishedChapterId = jsonAddUnpublishedChapter.id;
 
       //Course 3: course without any chapter
       const responseCreateWithoutChapter =
@@ -128,7 +132,9 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
             { failOnStatusCode: true },
           );
         });
-      courseWithoutChapterId = (await responseCreateWithoutChapter.json()).id;
+      const jsonCreateWithoutChapter =
+        await responseCreateWithoutChapter.json();
+      courseWithoutChapterId = jsonCreateWithoutChapter.id;
 
       const responseUpdatedWithoutChapter =
         await test.step("9. Update the created course so that title, description, image, price are NOT empty", async () => {
@@ -154,7 +160,8 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
             { failOnStatusCode: true },
           );
         });
-      courseWithEmptyPropsId = (await responseCreateEmptyProps.json()).id;
+      const jsonCreateEmptyProps = await await responseCreateEmptyProps.json();
+      courseWithEmptyPropsId = jsonCreateEmptyProps.id;
     },
   );
 
@@ -219,16 +226,24 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
 
       const json = await response.json();
 
-      await checkSchema(
-        json,
-        courseCreatedSchema,
-        "Course JSON does NOT match the schema",
-      );
+      await checkSchema(json, courseCreatedSchema);
 
-      expect.soft(json.isPublished).toBe(true);
-      expect.soft(json.description.length).toBeGreaterThan(0);
-      expect.soft(json.imageUrl.length).toBeGreaterThan(0);
-      expect.soft(json.price.length).toBeGreaterThan(0);
+      await test.step("Verify if the course has been published", async () => {
+        const responseGet = await coursesController.getCourseById(
+          validCourseId,
+          {
+            failOnStatusCode: true,
+          },
+        );
+        const jsonGet = await responseGet.json();
+        const { categories, chapters, attachments, ...courseFieldsGet } =
+          jsonGet;
+        expect.soft(courseFieldsGet).toEqual(json);
+        expect.soft(jsonGet.isPublished).toBe(true);
+        expect.soft(jsonGet.description.length).toBeGreaterThan(0);
+        expect.soft(jsonGet.imageUrl.length).toBeGreaterThan(0);
+        expect.soft(jsonGet.price.length).toBeGreaterThan(0);
+      });
     },
   );
 
@@ -251,6 +266,7 @@ test.describe("PATCH /courses/{courseId}/publish - publis course", () => {
       expect
         .soft(json.error)
         .toBe("At least one published chapter is required");
+      expect.soft(json.isPublished).toBeFalsy();
     },
   );
 
@@ -338,6 +354,10 @@ test.describe(
 
       await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
   },
 );

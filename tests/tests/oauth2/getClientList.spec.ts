@@ -10,7 +10,7 @@ import {
 } from "../../app/utils/expect-helpers";
 import { oauthClientListSchema } from "../../app/json-schemas/oauthSchemas";
 
-//Poitive tests - get clients
+//Positive tests - get clients
 test.describe(
   "GET /clients: getting all clients by admin - should be successful",
   { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
@@ -26,19 +26,15 @@ test.describe(
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
-      await checkSchema(
-        json,
-        oauthClientListSchema,
-        "JSON of the clients list does NOT match expected schema",
-      );
+      await checkSchema(json, oauthClientListSchema);
     });
   },
 );
 
 //Negative test cases on 401/403 errors
 test.describe(
-  "GET /clients: getting all clients by non-auth admin",
-  { tag: [TAG.negative, TAG.smoke, TAG.oauth] },
+  "GET /clients: getting all clients without authorization and permissions",
+  { tag: [TAG.negative, TAG.smoke, TAG.oauth, TAG.permissions] },
   () => {
     test.use({ isAuthorized: false });
 
@@ -87,6 +83,26 @@ test.describe(
         await test.step("Try to get clients list by client with READ and WRITE permission", async () => {
           return await clientsController.getClients({
             headers: { Authorization: `Bearer ${readWriteClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Take clients list by client with READ, WRITE, and ADMIN permission - should be 403 error", async ({
+      clientsController,
+      readWriteAdminClientToken,
+    }) => {
+      const response =
+        await test.step("Try to get clients list by client with READ and WRITE permission", async () => {
+          return await clientsController.getClients({
+            headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
             failOnStatusCode: false,
           });
         });

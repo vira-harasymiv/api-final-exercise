@@ -87,11 +87,7 @@ test.describe(
       await checkOKStatusCode(responseUpdate);
 
       const json = await responseUpdate.json();
-      await checkSchema(
-        json,
-        courseCreatedSchema,
-        "JSON of the updated course does NOT match expected schema",
-      );
+      await checkSchema(json, courseCreatedSchema);
 
       await test.step("Verify if all properties were updated", async () => {
         const responseGet =
@@ -133,11 +129,7 @@ test.describe(
       await checkMandatoryHeaders(responseUpdate);
 
       const json = await responseUpdate.json();
-      await checkSchema(
-        json,
-        courseCreatedSchema,
-        "JSON of the updated course does NOT match expected schema",
-      );
+      await checkSchema(json, courseCreatedSchema);
 
       await test.step("Verify if properties were updated", async () => {
         const responseGet =
@@ -158,16 +150,25 @@ test.describe(
 //NEGATIVE tests for updating a course without admin permission or auth
 test.describe(
   "PATCH /courses - Update a course without auth or admin permission - should be 401/403 error",
-  { tag: [TAG.negative, TAG.courses, TAG.smoke, TAG.regression] },
+  {
+    tag: [
+      TAG.negative,
+      TAG.courses,
+      TAG.smoke,
+      TAG.regression,
+      TAG.permissions,
+    ],
+  },
   () => {
     test.use({ isAuthorized: false });
 
-    test("Update a course without auth - should be 401 error", async ({
+    test("Update a course without authorization - should be 401 error", async ({
       coursesController,
     }) => {
       const courseBuilder = new CourseBuilder().withPrice(100.0).build();
+
       const responseUpdate =
-        await test.step("Update a course without auth", async () => {
+        await test.step("Update a course without authorization", async () => {
           return await coursesController.updateCourse(
             "dsdsdsd",
             courseBuilder,
@@ -179,6 +180,10 @@ test.describe(
 
       await checkUnauthorizedStatusCode(responseUpdate);
       await checkAcceptEncodingHeaders(responseUpdate);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await responseUpdate.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
 
     test("Update a course as a client with READ permission - should be 403 error", async ({
@@ -186,6 +191,7 @@ test.describe(
       readClientToken,
     }) => {
       const courseBuilder = new CourseBuilder().withPrice(100.0).build();
+
       const responseUpdate =
         await test.step("Update a course as a client with READ permission", async () => {
           return await coursesController.updateCourse("sdsdsd", courseBuilder, {
@@ -196,6 +202,10 @@ test.describe(
 
       await checkForbiddenStatusCode(responseUpdate);
       await checkMandatoryHeaders(responseUpdate);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await responseUpdate.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Update a course as a client with READ and WRITE permissions - should be 403 error", async ({
@@ -213,6 +223,31 @@ test.describe(
 
       await checkForbiddenStatusCode(responseUpdate);
       await checkMandatoryHeaders(responseUpdate);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await responseUpdate.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Update a course as a client with READ, WRITE, and ADMIN permissions - should be 403 error", async ({
+      coursesController,
+      readWriteAdminClientToken,
+    }) => {
+      const courseBuilder = new CourseBuilder().withPrice(100.0).build();
+      const responseUpdate =
+        await test.step("Update a course as a client with READ, WRITE, and ADMIN permissions", async () => {
+          return await coursesController.updateCourse("sdsdsd", courseBuilder, {
+            headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkForbiddenStatusCode(responseUpdate);
+      await checkMandatoryHeaders(responseUpdate);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await responseUpdate.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
   },
 );

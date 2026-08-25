@@ -81,14 +81,16 @@ test.describe(
   },
   () => {
     for (const { id, dataType, data } of invalidDataTypes) {
-      test(`${id} Check the ability to revoke refresh token = ${dataType}`, async ({
-        revokeController,
-      }) => {
-        const response = await revokeController.revokeInvalidToken({
-          token: data,
-        });
-        await checkBadStatusCode(response);
-      });
+      test(
+        `${id} Check the ability to revoke refresh token = ${dataType}`,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ revokeController }) => {
+          const response = await revokeController.revokeInvalidToken({
+            token: data,
+          });
+          await checkBadStatusCode(response);
+        },
+      );
     }
 
     test("Verify revoking non-existing refresh token", async ({

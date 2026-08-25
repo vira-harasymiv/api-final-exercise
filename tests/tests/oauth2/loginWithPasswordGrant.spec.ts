@@ -111,30 +111,32 @@ test.describe(
 
     // Wrong data type (number, null, boolean, etc.) substituted into grant_type
     for (const { id, dataType, data } of invalidDataTypes) {
-      test(`${id} Check logging with grant data type = ${dataType} `, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          ...passwordGrantPayload,
-          grant_type: data,
-        };
+      test(
+        `${id} Check logging with grant data type = ${dataType} `,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            ...passwordGrantPayload,
+            grant_type: data,
+          };
 
-        const response =
-          await test.step(`Login with grant data type = ${dataType}`, async () => {
-            return await oauthController.withInvalidPasswordGrant(payload);
+          const response =
+            await test.step(`Login with grant data type = ${dataType}`, async () => {
+              return await oauthController.withInvalidPasswordGrant(payload);
+            });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect
+              .soft(json.error_description)
+              .toBe(
+                "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
+              );
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect
-            .soft(json.error_description)
-            .toBe(
-              "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
-            );
-        });
-      });
+        },
+      );
     }
 
     // Malformed/invalid email values substituted into the `email` field
@@ -144,25 +146,27 @@ test.describe(
       data,
       error_description,
     } of testDataForInvalidEmail) {
-      test(`${id} Check logging with invalid email = ${dataType} `, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          ...passwordGrantPayload,
-          email: data,
-        };
+      test(
+        `${id} Check logging with invalid email = ${dataType} `,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            ...passwordGrantPayload,
+            email: data,
+          };
 
-        const response =
-          await test.step(`Login with invalid email = ${dataType}`, async () => {
-            return await oauthController.withInvalidPasswordGrant(payload);
+          const response =
+            await test.step(`Login with invalid email = ${dataType}`, async () => {
+              return await oauthController.withInvalidPasswordGrant(payload);
+            });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check error message in the response", async () => {
+            const json = await response.json();
+            expect.soft(json.error_description).toBe(error_description);
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check error message in the response", async () => {
-          const json = await response.json();
-          expect.soft(json.error_description).toBe(error_description);
-        });
-      });
+        },
+      );
     }
 
     // Wrong data type (number, null, boolean, etc.) substituted into the `password` field
@@ -172,26 +176,28 @@ test.describe(
       data,
       errorDescription,
     } of invalidDataTypesForPassword) {
-      test(`${id} Check logging with invalid password = ${dataType} `, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          ...passwordGrantPayload,
-          password: data,
-        };
+      test(
+        `${id} Check logging with invalid password = ${dataType} `,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            ...passwordGrantPayload,
+            password: data,
+          };
 
-        const response =
-          await test.step(`Login with invalid password = ${dataType}`, async () => {
-            return await oauthController.withInvalidPasswordGrant(payload);
+          const response =
+            await test.step(`Login with invalid password = ${dataType}`, async () => {
+              return await oauthController.withInvalidPasswordGrant(payload);
+            });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect.soft(json.error_description).toBe(errorDescription);
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect.soft(json.error_description).toBe(errorDescription);
-        });
-      });
+        },
+      );
     }
   },
 );

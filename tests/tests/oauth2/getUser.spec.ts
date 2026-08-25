@@ -9,45 +9,19 @@ import {
 
 //Positive smoke tests for getting client's and admin's info
 test.describe(
-  "GET /userinfo: get current info by client - it should be successful",
+  "GET /userinfo: get current client - it should be successful",
   { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
   () => {
-    let token: string;
-    let clientId: string;
-    const scopes = ["read"];
+    test.use({ isAuthorized: false });
 
-    test.beforeAll(
-      "Login with credentials of the created client",
-      async ({ apiClient, randomString }) => {
-        const result = await apiClient.loginWithCredentialsOfNewClient(
-          randomString,
-          scopes,
-        );
-        clientId = result.clientId;
-
-        const json = await result.responseLogin.json();
-        token = json.access_token;
-      },
-    );
-
-    test.afterAll(
-      "Deactivate the created client",
-      async ({ clientsController }) => {
-        await test.step("Delete the created client", async () => {
-          await clientsController.deactivateClient(clientId, {
-            failOnStatusCode: true,
-          });
-        });
-      },
-    );
-
-    test("Verify getting client info with permission = read", async ({
+    test("Verify getting client info with permission = READ", async ({
       userInfoController,
+      readClientToken,
     }) => {
       const response =
-        await test.step("Get info about the authorized user", async () => {
+        await test.step("Get info about the authorized user with permission = READ", async () => {
           return await userInfoController.getUserInfo({
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${readClientToken}` },
             failOnStatusCode: true,
           });
         });
@@ -61,9 +35,58 @@ test.describe(
       });
     });
 
+    test("Verify getting client info with permission = READ and WRITE", async ({
+      userInfoController,
+      readWriteClientToken,
+    }) => {
+      const response =
+        await test.step("Get info about the authorized user with permission = READ and WRITE", async () => {
+          return await userInfoController.getUserInfo({
+            headers: { Authorization: `Bearer ${readWriteClientToken}` },
+            failOnStatusCode: true,
+          });
+        });
+      await checkMandatoryHeaders(response);
+      await checkOKStatusCode(response);
+      await test.step("Verify response properties", async () => {
+        const json = await response.json();
+        expect.soft(json.sub).toContain("client");
+        expect.soft(json.type).toBe("client");
+        expect.soft(json.scopes).toEqual(["read", "write"]);
+      });
+    });
+
+    test("Verify getting client info with permission = READ, WRITE, and ADMIN", async ({
+      userInfoController,
+      readWriteAdminClientToken,
+    }) => {
+      const response =
+        await test.step("Get info about the authorized user with permission = READ, WRITE, and ADMIN", async () => {
+          return await userInfoController.getUserInfo({
+            headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
+            failOnStatusCode: true,
+          });
+        });
+      await checkMandatoryHeaders(response);
+      await checkOKStatusCode(response);
+      await test.step("Verify response properties", async () => {
+        const json = await response.json();
+        expect.soft(json.sub).toContain("client");
+        expect.soft(json.type).toBe("client");
+        expect.soft(json.scopes).toEqual(["read", "write", "admin"]);
+      });
+    });
+  },
+);
+
+//Positive smoke tests for getting client's and admin's info
+test.describe(
+  "GET /userinfo: get current admin - it should be successful",
+  { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
+  () => {
     test("Verify getting ADMIN info", async ({ userInfoController }) => {
       const response =
-        await test.step("Get info about the authorized admin", async () => {
+        await test.step("Get info as the authorized admin", async () => {
           return await userInfoController.getUserInfo({
             failOnStatusCode: true,
           });

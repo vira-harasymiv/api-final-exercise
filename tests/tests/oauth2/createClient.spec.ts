@@ -13,7 +13,7 @@ import { oauthCreatedClientSchema } from "../../app/json-schemas/oauthSchemas";
 import { createClientPositiveCases } from "./testData/testDataPositiveCases";
 import { invalidDataTypes } from "./testData/testData";
 
-//POSITIVE cases for creating a new client
+//Positive cases for creating a new client
 test.describe(
   "POST /clients - Create a new client: should be successful",
   { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
@@ -36,11 +36,7 @@ test.describe(
         await checkMandatoryHeaders(response);
 
         const json = await response.json();
-        await checkSchema(
-          json,
-          oauthCreatedClientSchema,
-          "JSON of the the created client does NOT match expected schema",
-        );
+        await checkSchema(json, oauthCreatedClientSchema);
 
         await test.step("Verify if the item has been created", async () => {
           const result = await apiClient.getClientInfo(
@@ -54,20 +50,23 @@ test.describe(
   },
 );
 
-//NEGATIVE cases on checking 401 and 403 errors
+//Negative cases on checking 401 and 403 errors
 test.describe(
   "POST /clients - Create a new client without auth and permissions",
-  { tag: [TAG.oauth, TAG.negative, TAG.regression, TAG.smoke] },
+  {
+    tag: [TAG.oauth, TAG.negative, TAG.regression, TAG.smoke, TAG.permissions],
+  },
   () => {
     test.use({ isAuthorized: false });
 
-    test("Create a new client without auth - should be 401 Error", async ({
+    test("Create a new client without authorization - should be 401 Error", async ({
       clientsController,
     }) => {
       const response =
-        await test.step("Try to create a new client without auth", async () => {
+        await test.step("Try to create a new client without authorization", async () => {
           return await clientsController.createClient({ name: "test" });
         });
+
       await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
       await test.step("Check the error message received in response", async () => {
@@ -90,6 +89,7 @@ test.describe(
             },
           );
         });
+
       await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
       await test.step("Check the error message received in response", async () => {
@@ -112,6 +112,30 @@ test.describe(
             },
           );
         });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Check the error message received in response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Create a new client with only READ, WRITE, and ADMIN permissions - should be 403 Error", async ({
+      readWriteAdminClientToken,
+      clientsController,
+    }) => {
+      const response =
+        await test.step("Try to create a new client with READ, WRITE, and ADMIN permissions", async () => {
+          return await clientsController.createClient(
+            { name: "test" },
+            {
+              headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+
       await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
       await test.step("Check the error message received in response", async () => {
@@ -122,10 +146,10 @@ test.describe(
   },
 );
 
-//NEGATIVE cases with incorrect data types
+//NEGATIVE cases with invalid data types
 test.describe(
-  "POST /clients - Create a new client: negative tests",
-  { tag: [TAG.oauth, TAG.negative, TAG.regression] },
+  "POST /clients - Create a new client using invalid data types: negative tests",
+  { tag: [TAG.oauth, TAG.negative, TAG.regression, TAG.invalidDataTypes] },
   () => {
     for (const { id, dataType, data } of invalidDataTypes) {
       test(`${id} Check the ability to create client with name = ${dataType}`, async ({

@@ -60,15 +60,23 @@ test.describe(
 //Negative tests for deleting a course without admin permission or auth
 test.describe(
   "DELETE /{courseId} - Delete a course without auth or admin permission - should be 401/403 error",
-  { tag: [TAG.negative, TAG.courses, TAG.smoke, TAG.regression] },
+  {
+    tag: [
+      TAG.negative,
+      TAG.courses,
+      TAG.smoke,
+      TAG.regression,
+      TAG.permissions,
+    ],
+  },
   () => {
     test.use({ isAuthorized: false });
 
-    test("Delete a course without auth - should be 401 error", async ({
+    test("Delete a course without authorization - should be 401 error", async ({
       coursesController,
     }) => {
       const response =
-        await test.step("Delete a course without auth", async () => {
+        await test.step("Delete a course without authorization", async () => {
           return await coursesController.deleteCourseById("any course ID", {
             failOnStatusCode: false,
           });
@@ -76,6 +84,10 @@ test.describe(
 
       await checkAcceptEncodingHeaders(response);
       await checkUnauthorizedStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Unauthorized");
+      });
     });
 
     test("Delete a course as a client with READ permission - should be 403 error", async ({
@@ -92,6 +104,10 @@ test.describe(
 
       await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
 
     test("Delete a course as a client with READ and WRITE permissions - should be 403 error", async ({
@@ -108,6 +124,30 @@ test.describe(
 
       await checkMandatoryHeaders(response);
       await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+
+    test("Delete a course as a client with READ, WRITE, and ADMIN permissions - should be 403 error", async ({
+      coursesController,
+      readWriteAdminClientToken,
+    }) => {
+      const response =
+        await test.step("Try to delete a course as a client with READ, WRITE, and ADMIN permissions", async () => {
+          return await coursesController.deleteCourseById("any course ID", {
+            headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
+            failOnStatusCode: false,
+          });
+        });
+
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
     });
   },
 );

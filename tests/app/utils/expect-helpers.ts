@@ -34,7 +34,7 @@ export async function checkAcceptEncodingHeaders(response: APIResponse) {
 
 //Assert a 400 Bad Request response, including mandatory headers
 export async function checkBadStatusCode(response: APIResponse) {
-  await test.step("Verify response", async () => {
+  await test.step("Verify if the Status Code is 400 Bad Request", async () => {
     expect.soft(response.status()).toBe(400);
     expect.soft(response.statusText()).toBe("Bad Request");
   });
@@ -42,7 +42,7 @@ export async function checkBadStatusCode(response: APIResponse) {
 
 //Assert a 404 Not Found response, including mandatory headers
 export async function checkNotFoundStatusCode(response: APIResponse) {
-  await test.step("Verify response", async () => {
+  await test.step("Verify if the Status Code is 404 Not Found", async () => {
     expect.soft(response.status()).toBe(404);
     expect.soft(response.statusText()).toBe("Not Found");
   });
@@ -50,8 +50,10 @@ export async function checkNotFoundStatusCode(response: APIResponse) {
 
 //Assert a 401 Unauthorized response (uses Accept-Encoding headers, not the RSC ones)
 export async function checkUnauthorizedStatusCode(response: APIResponse) {
-  expect.soft(response.status()).toBe(401);
-  expect.soft(response.statusText()).toBe("Unauthorized");
+  await test.step("Verify if the Status Code is 401 Unauthorized", async () => {
+    expect.soft(response.status()).toBe(401);
+    expect.soft(response.statusText()).toBe("Unauthorized");
+  });
 }
 
 //Assert a 200 OK response, including mandatory headers
@@ -84,13 +86,13 @@ export async function checkSchema<Schema extends ZodType>(
   schema: Schema,
   errorMessage: string = "JSON does NOT match the expected schema",
 ) {
-  await test.step("Verify that json corresponds to schema", async () => {
+  await test.step("Verify that json received in the response corresponds to schema", async () => {
     const result = schema.safeParse(json);
     expect.soft(result.success, errorMessage).toBeTruthy();
   });
 }
 
-//Check successful response for taking token by using different grants
+//Check successful response for login by using different grants
 export async function checkSuccessfulTokenResponse(
   response: APIResponse,
   options: { expectRefreshToken: boolean },
@@ -99,10 +101,14 @@ export async function checkSuccessfulTokenResponse(
   const json = await response.json();
   await checkOKStatusCode(response);
 
-  expect.soft(json.token_type).toBe("Bearer");
-  expect.soft(json.expires_in).toBe(900);
+  await test.step("Verify if the token type is Bearer and it expires in 900 seconds", async () => {
+    expect.soft(json.token_type).toBe("Bearer");
+    expect.soft(json.expires_in).toBe(900);
+  });
 
-  expect.soft(json.scope).toBe(expectedScope);
+  await test.step("Verify permissions of the logged client", async () => {
+    expect.soft(json.scope).toBe(expectedScope);
+  });
 
   options.expectRefreshToken
     ? await checkTokens(response)
@@ -123,9 +129,9 @@ async function checkTokens(response: APIResponse) {
 
 //Used for grants without a refresh_token - verify the access token is present
 async function checkAccessToken(response: APIResponse) {
-  await test.step("Verify access token", async () => {
+  await test.step("Verify if the returned token contains 32 characters or more", async () => {
     const json = await response.json();
     expect.soft(json.access_token).toBeTruthy();
-    expect.soft(json.access_token.length).toBeGreaterThan(0);
+    expect.soft(json.access_token.length).toBeGreaterThanOrEqual(32);
   });
 }

@@ -9,7 +9,7 @@ import {
   checkUnauthorizedStatusCode,
 } from "../../app/utils/expect-helpers";
 
-//Positive tests for checking the client deleting
+//Positive tests for checking the client deactivating
 test.describe(
   "DELETE /clients - Deactivate client by ID using ADMIN credentials: should be successful",
   { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
@@ -39,6 +39,7 @@ test.describe(
               failOnStatusCode: true,
             });
           });
+
         await checkMandatoryHeaders(response);
         await checkOKStatusCode(response);
         await test.step("Verify if the success message is true", async () => {
@@ -53,7 +54,7 @@ test.describe(
 //Negative tests for checking permissions to delete client
 test.describe(
   "DELETE /clients - Deactivate client by ID: negative tests",
-  { tag: [TAG.oauth, TAG.negative, TAG.regression] },
+  { tag: [TAG.oauth, TAG.negative, TAG.regression, TAG.permissions] },
   () => {
     test.use({ isAuthorized: false });
 
@@ -237,6 +238,10 @@ test.describe(
         });
       await checkMandatoryHeaders(response);
       await checkNotFoundStatusCode(response);
+      await test.step("Verify the error message", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Client not found");
+      });
     });
   },
 );

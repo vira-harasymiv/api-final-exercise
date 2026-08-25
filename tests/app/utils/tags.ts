@@ -11,4 +11,6 @@ export enum TAG {
   chapter = "@chapter",
   admin = "@admin",
   uploadFile = "@uploadFile",
+  permissions = "@permissions",
+  invalidDataTypes = "@invalidDataTypes",
 }

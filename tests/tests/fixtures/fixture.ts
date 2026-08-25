@@ -11,6 +11,7 @@ type myFixture = {
   randomString: string;
   readClientToken: string;
   readWriteClientToken: string;
+  readWriteAdminClientToken: string;
 };
 
 export const test = base.extend<myFixture>({
@@ -36,7 +37,7 @@ export const test = base.extend<myFixture>({
     await use(random + title);
   },
 
-  //Token of a client created with only the `read` scope, cached the same way as the admin token
+  //Token of a client created with only the READ permission
   readClientToken: async ({ request }, use) => {
     const token = await getScopedClientToken(
       request,
@@ -46,12 +47,22 @@ export const test = base.extend<myFixture>({
     await use(token);
   },
 
-  //Token of a client created with the `read` and `write` scopes, cached the same way as the admin token
+  //Token of a client created with the READ and WRITE permissions
   readWriteClientToken: async ({ request }, use) => {
     const token = await getScopedClientToken(
       request,
       ["read", "write"],
       ".accessTokenReadWrite",
+    );
+    await use(token);
+  },
+
+  //Token of a client created with the the READ, WRITE, and ADMIN permissions
+  readWriteAdminClientToken: async ({ request }, use) => {
+    const token = await getScopedClientToken(
+      request,
+      ["read", "write", "admin"],
+      ".accessTokenReadWriteAdmin",
     );
     await use(token);
   },

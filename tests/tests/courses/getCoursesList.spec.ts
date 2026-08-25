@@ -9,9 +9,11 @@ import { coursesListResponseSchema } from "../../app/json-schemas/courseSchemas"
 
 //Positive tests for getting the list of courses
 test.describe(
-  "GET /courses - get the courses list: should be successful",
+  "GET /courses - get the courses list without authorization: should be successful",
   { tag: [TAG.smoke, TAG.regression, TAG.courses] },
   () => {
+    test.use({ isAuthorized: false });
+
     test("Get the list of courses by admin- should be successful", async ({
       coursesController,
     }) => {
@@ -22,11 +24,7 @@ test.describe(
       await checkOKStatusCode(response);
 
       const json = await response.json();
-      checkSchema(
-        json,
-        coursesListResponseSchema,
-        "JSON of the courses list does NOT match the schema",
-      );
+      checkSchema(json, coursesListResponseSchema);
     });
   },
 );

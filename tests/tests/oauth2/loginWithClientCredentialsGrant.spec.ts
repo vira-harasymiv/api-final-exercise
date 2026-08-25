@@ -116,7 +116,13 @@ test.describe(
 test.describe(
   "POST /token with Client Credentials Grant - negative tests",
   {
-    tag: [TAG.negative, TAG.oauth, TAG.clientCredentialsGrant, TAG.regression],
+    tag: [
+      TAG.negative,
+      TAG.oauth,
+      TAG.clientCredentialsGrant,
+      TAG.regression,
+      TAG.invalidDataTypes,
+    ],
   },
   () => {
     let clientId: string;
@@ -186,29 +192,34 @@ test.describe(
       data,
       errorDescription,
     } of invalidDataTypesForCredentials) {
-      test(`Logging with client ID = ${dataType} - should be 400 error`, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          client_id: data,
-          client_secret: clientSecret,
-          grant_type: "client_credentials",
-        };
+      test(
+        `Logging with client ID = ${dataType} - should be 400 error`,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            client_id: data,
+            client_secret: clientSecret,
+            grant_type: "client_credentials",
+          };
 
-        const response =
-          await test.step(`Take token with client ID = ${dataType}`, async () => {
-            return await oauthController.withClientIdAndSecret(payload as any, {
-              failOnStatusCode: false,
+          const response =
+            await test.step(`Take token with client ID = ${dataType}`, async () => {
+              return await oauthController.withClientIdAndSecret(
+                payload as any,
+                {
+                  failOnStatusCode: false,
+                },
+              );
             });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect.soft(json.error_description).toBe(errorDescription);
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect.soft(json.error_description).toBe(errorDescription);
-        });
-      });
+        },
+      );
     }
 
     // Same invalid data types, this time substituted into client_secret
@@ -217,60 +228,70 @@ test.describe(
       data,
       errorDescription,
     } of invalidDataTypesForCredentials) {
-      test(`Logging with Client Secret = ${dataType} - should be 400 error`, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          client_id: clientId,
-          client_secret: data,
-          grant_type: "client_credentials",
-        };
+      test(
+        `Logging with Client Secret = ${dataType} - should be 400 error`,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            client_id: clientId,
+            client_secret: data,
+            grant_type: "client_credentials",
+          };
 
-        const response =
-          await test.step(`Take token with client secret = ${dataType}`, async () => {
-            return await oauthController.withClientIdAndSecret(payload as any, {
-              failOnStatusCode: false,
+          const response =
+            await test.step(`Take token with client secret = ${dataType}`, async () => {
+              return await oauthController.withClientIdAndSecret(
+                payload as any,
+                {
+                  failOnStatusCode: false,
+                },
+              );
             });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect.soft(json.error_description).toBe(errorDescription);
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect.soft(json.error_description).toBe(errorDescription);
-        });
-      });
+        },
+      );
     }
 
     // Invalid data types substituted into grant_type
     for (const { dataType, data } of invalidDataTypes) {
-      test(`Logging with grant type = ${dataType} - should be 400 error`, async ({
-        oauthController,
-      }) => {
-        const payload = {
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: data,
-        };
+      test(
+        `Logging with grant type = ${dataType} - should be 400 error`,
+        { tag: [TAG.invalidDataTypes] },
+        async ({ oauthController }) => {
+          const payload = {
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: data,
+          };
 
-        const response =
-          await test.step(`Take token with grant type = ${dataType}`, async () => {
-            return await oauthController.withClientIdAndSecret(payload as any, {
-              failOnStatusCode: false,
+          const response =
+            await test.step(`Take token with grant type = ${dataType}`, async () => {
+              return await oauthController.withClientIdAndSecret(
+                payload as any,
+                {
+                  failOnStatusCode: false,
+                },
+              );
             });
+          await checkMandatoryHeaders(response);
+          await checkBadStatusCode(response);
+          await test.step("Check the error message", async () => {
+            const json = await response.json();
+            expect.soft(json.error).toBe("invalid_request");
+            expect
+              .soft(json.error_description)
+              .toBe(
+                "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
+              );
           });
-        await checkMandatoryHeaders(response);
-        await checkBadStatusCode(response);
-        await test.step("Check the error message", async () => {
-          const json = await response.json();
-          expect.soft(json.error).toBe("invalid_request");
-          expect
-            .soft(json.error_description)
-            .toBe(
-              "Invalid discriminator value. Expected 'password' | 'client_credentials' | 'refresh_token'",
-            );
-        });
-      });
+        },
+      );
     }
   },
 );

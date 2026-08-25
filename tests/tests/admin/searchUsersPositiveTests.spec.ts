@@ -62,11 +62,7 @@ test.describe(
             .toBeTruthy();
         }
       });
-      await checkSchema(
-        json,
-        userSearchResultSchema,
-        "JSON array of searched users does NOT match the schema",
-      );
+      await checkSchema(json, userSearchResultSchema);
     });
 
     test("Search by the first letter of a user's email - should be successful", async ({
@@ -94,11 +90,7 @@ test.describe(
             .toBeTruthy();
         }
       });
-      await checkSchema(
-        json,
-        userSearchResultSchema,
-        "JSON array of searched users does NOT match the schema",
-      );
+      await checkSchema(json, userSearchResultSchema);
     });
 
     test("Search by two adjacent letters of a user's email - should be successful", async ({
@@ -126,11 +118,7 @@ test.describe(
             .toBeTruthy();
         }
       });
-      await checkSchema(
-        json,
-        userSearchResultSchema,
-        "JSON array of searched users does NOT match the schema",
-      );
+      await checkSchema(json, userSearchResultSchema);
     });
 
     test("Search by non-existing email or name - should be empty array", async ({
@@ -206,11 +194,7 @@ test.describe(
             .toBeTruthy();
         }
       });
-      await checkSchema(
-        json,
-        userSearchResultSchema,
-        "JSON array of searched users does NOT match the schema",
-      );
+      await checkSchema(json, userSearchResultSchema);
     });
 
     test("Search by the first letter of a user's name - should be successful", async ({
@@ -238,11 +222,7 @@ test.describe(
             .toBeTruthy();
         }
       });
-      await checkSchema(
-        json,
-        userSearchResultSchema,
-        "JSON array of searched users does NOT match the schema",
-      );
+      await checkSchema(json, userSearchResultSchema);
     });
 
     //Min length of user name is 2
@@ -271,11 +251,7 @@ test.describe(
             .toBeTruthy();
         }
       });
-      await checkSchema(
-        json,
-        userSearchResultSchema,
-        "JSON array of searched users does NOT match the schema",
-      );
+      await checkSchema(json, userSearchResultSchema);
     });
   },
 );

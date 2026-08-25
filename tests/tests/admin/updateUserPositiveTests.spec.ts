@@ -51,11 +51,7 @@ test.describe(
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
-      await checkSchema(
-        json,
-        userSchema,
-        "User's JSON does NOT match the schema",
-      );
+      await checkSchema(json, userSchema);
       await test.step("Check if the user's name has been updated", async () => {
         expect.soft(json.name).toBe(updatedName);
         expect.soft(json.id).toBe(userId);
@@ -81,11 +77,7 @@ test.describe(
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
-      await checkSchema(
-        json,
-        userSchema,
-        "User's JSON does NOT match the schema",
-      );
+      await checkSchema(json, userSchema);
       await test.step("Check if the user's email has been updated", async () => {
         expect.soft(json.email).toBe(updatedEmail);
         expect.soft(json.id).toBe(userId);
@@ -106,11 +98,7 @@ test.describe(
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
-      await checkSchema(
-        json,
-        userSchema,
-        "User's JSON does NOT match the schema",
-      );
+      await checkSchema(json, userSchema);
       await test.step("Check if the user's state has been updated", async () => {
         expect.soft(json.isActive).toBe(false);
         expect.soft(json.id).toBe(userId);
@@ -139,11 +127,7 @@ test.describe(
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
       const json = await response.json();
-      await checkSchema(
-        json,
-        userSchema,
-        "User's JSON does NOT match the schema",
-      );
+      await checkSchema(json, userSchema);
       await test.step("Check if the user's email, name, state has been updated", async () => {
         expect.soft(json.name).toBe(updatedName);
         expect.soft(json.email).toBe(updatedEmail);

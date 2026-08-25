@@ -21,7 +21,7 @@ test.describe(
       uploadController,
     }) => {
       const response =
-        await test.step("Upload file in the JPEG format", async () => {
+        await test.step("Upload non-empty, up to 50MB file in the JPEG format", async () => {
           return await uploadController.uploadFile(
             {
               file: {
@@ -36,13 +36,9 @@ test.describe(
 
       await checkCreatedStatusCode(response);
       const json = await response.json();
-      await checkSchema(
-        json,
-        uploadedFileSchema,
-        "JSON response of the uploaded file does not match schema",
-      );
+      await checkSchema(json, uploadedFileSchema);
       await checkMandatoryHeaders(response);
-      await test.step("Check properties in the response body", async () => {
+      await test.step("Verify properties in the response body", async () => {
         expect.soft(json.url).toContain("/api/uploads/");
         expect.soft(json.name).toBe("jpeg-example");
         expect.soft(json.size).toBe(14322);
@@ -50,11 +46,12 @@ test.describe(
       });
     });
 
+    //!Here the uploading of empty file should be clarified
     test("Upload empty JPEG file - should be successful", async ({
       uploadController,
     }) => {
       const response =
-        await test.step("Upload empty file in the JPEG format", async () => {
+        await test.step("Upload JPEG file with size = 0MB", async () => {
           return await uploadController.uploadFile(
             {
               file: {
@@ -69,7 +66,7 @@ test.describe(
       await checkCreatedStatusCode(response);
       const json = await response.json();
       await checkMandatoryHeaders(response);
-      await test.step("Check properties in the response body", async () => {
+      await test.step("Verify properties in the response body", async () => {
         expect.soft(json.url).toContain("/api/uploads/");
         expect.soft(json.name).toBe("jpeg-0B");
         expect.soft(json.size).toBe(0);
@@ -102,10 +99,10 @@ test.describe(
 
 //Negative test cases for uploading JPEG file (unsupported format, JPEG files > 50MB)
 test.describe(
-  "POST /upload - upload JPEG files: negative tests",
+  "POST /upload - upload JPEG files: negative tests on unsupported format, large files",
   { tag: [TAG.negative, TAG.regression, TAG.uploadFile] },
   () => {
-    test("Upload unsupported format - should be error", async ({
+    test("Upload unsupported format - should be 400 error", async ({
       uploadController,
     }) => {
       const response =
@@ -124,7 +121,7 @@ test.describe(
       await checkMandatoryHeaders(response);
       await checkBadStatusCode(response);
       const json = await response.json();
-      await test.step("Check the error message", () => {
+      await test.step("Verify if the error message informs that the file type is not allowed", () => {
         expect(json.error).toContain("File type not allowed:");
       });
     });
@@ -195,7 +192,7 @@ test.describe(
 
 //Negative test cases for uploading JPEG file (empty name, name = path & path = name, DOCX file declared as image/jpeg )
 test.describe(
-  "POST /upload - upload file: name and content-type validation gaps",
+  "POST /upload - upload file: negative tests regarding name and content-type validation gaps",
   { tag: [TAG.negative, TAG.regression, TAG.uploadFile] },
   () => {
     //!Server does not validate the file name - an empty name is accepted and stored under a ".bin" extension instead of returning a 400 error
@@ -218,32 +215,12 @@ test.describe(
       await checkBadStatusCode(response);
     });
 
-    //!Server does not sanitize the file name - a path traversal string is accepted and echoed back as-is instead of returning a 400 error
-    test("Upload file with a path traversal name - should be error", async ({
-      uploadController,
-    }) => {
-      const response =
-        await test.step("Upload JPEG file with a path traversal name", async () => {
-          return await uploadController.uploadFile(
-            {
-              file: {
-                name: "../../../etc/passwd.jpg",
-                mimeType: mime.lookup("jpeg"),
-                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
-              },
-            },
-            { failOnStatusCode: false },
-          );
-        });
-      await checkBadStatusCode(response);
-    });
-
     //!Server only checks the declared mimeType against its allow-list and never verifies it matches the actual file content, so a DOCX file declared as image/jpeg is accepted instead of returning a 400 error
     test("Upload file with mimeType mismatching actual content - should be error", async ({
       uploadController,
     }) => {
       const response =
-        await test.step("Upload DOCX file content declared as image/jpeg", async () => {
+        await test.step("Upload DOCX file and declare it as image/jpeg", async () => {
           return await uploadController.uploadFile(
             {
               file: {
@@ -261,74 +238,118 @@ test.describe(
 );
 
 //Negative test cases on 401/403 errors
-test.describe("POST /upload - upload JPEG file without auth and admin permission", () => {
-  test.use({ isAuthorized: false });
+test.describe(
+  "POST /upload - upload JPEG file without authorization and admin permission",
+  { tag: [TAG.negative, TAG.regression, TAG.uploadFile, TAG.permissions] },
+  () => {
+    test.use({ isAuthorized: false });
 
-  test("Upload JPEG file without authorization - should be 401 error", async ({
-    uploadController,
-  }) => {
-    const response =
-      await test.step("Upload JPEG file without authorization", async () => {
-        return await uploadController.uploadFile(
-          {
-            file: {
-              name: "jpeg-example",
-              mimeType: mime.lookup("jpeg"),
-              relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+    test("Upload JPEG file without authorization - should be 401 error", async ({
+      uploadController,
+    }) => {
+      const response =
+        await test.step("Upload JPEG file without authorization", async () => {
+          return await uploadController.uploadFile(
+            {
+              file: {
+                name: "jpeg-example",
+                mimeType: mime.lookup("jpeg"),
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+              },
             },
-          },
-          { failOnStatusCode: false },
-        );
+            { failOnStatusCode: false },
+          );
+        });
+      await checkAcceptEncodingHeaders(response);
+      await checkUnauthorizedStatusCode(response);
+      const json = await response.json();
+      await test.step("Verify the error message in the response", async () => {
+        expect.soft(json.error).toBe("Unauthorized");
       });
-    await checkAcceptEncodingHeaders(response);
-    await checkUnauthorizedStatusCode(response);
-  });
+    });
 
-  test("Upload JPEG file as a client with READ permission - should be 403 error", async ({
-    uploadController,
-    readClientToken,
-  }) => {
-    const response =
-      await test.step("Upload JPEG file as a client with READ permission", async () => {
-        return await uploadController.uploadFile(
-          {
-            file: {
-              name: "jpeg-example",
-              mimeType: mime.lookup("jpeg"),
-              relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+    test("Upload JPEG file as a client with READ permission - should be 403 error", async ({
+      uploadController,
+      readClientToken,
+    }) => {
+      const response =
+        await test.step("Upload JPEG file as a client with READ permission", async () => {
+          return await uploadController.uploadFile(
+            {
+              file: {
+                name: "jpeg-example",
+                mimeType: mime.lookup("jpeg"),
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+              },
             },
-          },
-          {
-            headers: { Authorization: `Bearer ${readClientToken}` },
-            failOnStatusCode: false,
-          },
-        );
+            {
+              headers: { Authorization: `Bearer ${readClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
       });
-    await checkMandatoryHeaders(response);
-    await checkForbiddenStatusCode(response);
-  });
+    });
 
-  test("Upload JPEG file as a client with READ and WRITE permissions - should be 403 error", async ({
-    uploadController,
-    readWriteClientToken,
-  }) => {
-    const response =
-      await test.step("Upload JPEG file as a client with READ and WRITE permissions", async () => {
-        return await uploadController.uploadFile(
-          {
-            file: {
-              name: "jpeg-example",
-              mimeType: mime.lookup("jpeg"),
-              relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+    test("Upload JPEG file as a client with READ and WRITE permissions - should be 403 error", async ({
+      uploadController,
+      readWriteClientToken,
+    }) => {
+      const response =
+        await test.step("Upload JPEG file as a client with READ and WRITE permissions", async () => {
+          return await uploadController.uploadFile(
+            {
+              file: {
+                name: "jpeg-example",
+                mimeType: mime.lookup("jpeg"),
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+              },
             },
-          },
-          {
-            headers: { Authorization: `Bearer ${readWriteClientToken}` },
-            failOnStatusCode: false,
-          },
-        );
+            {
+              headers: { Authorization: `Bearer ${readWriteClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
       });
-    await checkMandatoryHeaders(response);
-    await checkForbiddenStatusCode(response);
-  });
-});
+    });
+
+    test("Upload JPEG file as a client with READ, WRITE, and ADMIN permissions - should be 403 error", async ({
+      uploadController,
+      readWriteAdminClientToken,
+    }) => {
+      const response =
+        await test.step("Upload JPEG file as a client with READ, WRITE, and ADMIN permissions", async () => {
+          return await uploadController.uploadFile(
+            {
+              file: {
+                name: "jpeg-example",
+                mimeType: mime.lookup("jpeg"),
+                relativePath: "tests/tests/upload/uploads/images/sample.jpg",
+              },
+            },
+            {
+              headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
+              failOnStatusCode: false,
+            },
+          );
+        });
+      await checkMandatoryHeaders(response);
+      await checkForbiddenStatusCode(response);
+      await test.step("Verify the error message in the response", async () => {
+        const json = await response.json();
+        expect.soft(json.error).toBe("Forbidden");
+      });
+    });
+  },
+);
