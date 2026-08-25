@@ -12,12 +12,6 @@ on:
         default: "http://localhost:3000"
         type: string
 
-      workersCount:
-        description: "How many workers to use for testing"
-        required: true
-        default: 3
-        type: number
-
 # Мінімальні права, необхідні для публікації звіту на GitHub Pages:
 # pages + id-token — для деплою артефакту на Pages;
 # contents: read — для checkout репозиторію.
@@ -32,10 +26,10 @@ jobs:
     # DATABASE_URL / UPLOAD_DIR зберігаються як Variables (не секрети), JWT_SECRET — як Secret.
     # BASE_URL береться з вхідного параметра воркфлоу, щоб тести знали, куди робити запити.
     env:
-      DATABASE_URL: "mysql://root:Roman7952470!@localhost:3306/dojo_api"
-      JWT_SECRET: "8f3a1c9e4b7d2f6a0e5c8b1d4f7a2e9c6b3d0f8a5e2c9b6d3f0a7e4c1b8d5f2a"
-      UPLOAD_DIR: "/tmp/dojo-api-uploads"
-      BASE_URL: "http://localhost:3000"
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      UPLOAD_DIR: ${{vars.UPLOAD_DIR}}
+      BASE_URL: ${{vars.BASE_URL}}
 
     # Обмежує час виконання джобу 60 хвилинами, щоб уникнути нескінченного зависання
     # і зайвого витрачання хвилин GitHub Actions.
@@ -96,7 +90,7 @@ jobs:
       # Запускає Playwright-тести з кількістю паралельних воркерів, переданою через параметр.
       # Більше воркерів — швидший запуск, але більше навантаження на локальний сервер і БД.
       - name: Run api tests
-        run: npx playwright test --workers=${{ github.event.inputs.workersCount }}
+        run: npx playwright test
 
       # Зберігає HTML-звіт Playwright як артефакт джобу навіть якщо тести впали (if: !cancelled()).
       # Зберігається 30 днів — достатньо для аналізу флапаючих тестів і розбору інцидентів.
