@@ -5,6 +5,7 @@ node_modules/
 .accessToken
 .accessTokenRead
 .accessTokenReadWrite
+.accessTokenReadWriteAdmin
 /tmp/
 
 node_modules/
