@@ -56,9 +56,10 @@ jobs:
       - uses: shogo82148/actions-setup-mysql@v1
         with:
           mysql-version: "9.6.0"
+          root-password: "Roman7952470!"
 
       # Швидка перевірка, що MySQL дійсно стартував і відповідає на запити перед продовженням.
-      - run: mysql -uroot -e 'SELECT version()'
+      - run: mysql -uroot -pRoman7952470! -e 'SELECT version()'
 
       # Кешує завантажені npm-пакети між запусками, щоб не завантажувати їх щоразу наново
       # і скоротити час виконання воркфлоу. Ключ залежить від package-lock.json —
