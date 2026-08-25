@@ -12,6 +12,12 @@ on:
         default: "http://localhost:3000"
         type: string
 
+      workersCount:
+        description: "How many workers to use for testing"
+        required: true
+        default: 3
+        type: number
+
 # Мінімальні права, необхідні для публікації звіту на GitHub Pages:
 # pages + id-token — для деплою артефакту на Pages;
 # contents: read — для checkout репозиторію.
@@ -52,10 +58,10 @@ jobs:
       - uses: shogo82148/actions-setup-mysql@v1
         with:
           mysql-version: "9.6.0"
-          root-password: "Roman7952470!"
+          root-password: ${{ secrets.DATABASE_PASSWORD}}
 
       # Швидка перевірка, що MySQL дійсно стартував і відповідає на запити перед продовженням.
-      - run: mysql -uroot -pRoman7952470! -e 'SELECT version()'
+      - run: mysql -uroot -p${{ secrets.DATABASE_PASSWORD}} -e 'SELECT version()'
 
       # Кешує завантажені npm-пакети між запусками, щоб не завантажувати їх щоразу наново
       # і скоротити час виконання воркфлоу. Ключ залежить від package-lock.json —
@@ -92,7 +98,7 @@ jobs:
       # Запускає Playwright-тести з кількістю паралельних воркерів, переданою через параметр.
       # Більше воркерів — швидший запуск, але більше навантаження на локальний сервер і БД.
       - name: Run api tests
-        run: npx playwright test
+        run: npx playwright test --workers=${{ github.event.inputs.workersCount }}
 
       # Зберігає HTML-звіт Playwright як артефакт джобу навіть якщо тести впали (if: !cancelled()).
       # Зберігається 30 днів — достатньо для аналізу флапаючих тестів і розбору інцидентів.
