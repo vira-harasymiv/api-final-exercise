@@ -23,10 +23,9 @@ permissions:
 jobs:
   test:
     env:
-      DATABASE_URL: ${{ vars.DATABASE_URL }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      UPLOAD_DIR: ${{ vars.UPLOAD_DIR }}
-      BASE_URL: ${{ github.event.inputs.url }}
+      DATABASE_URL: "mysql://root:Roman7952470!@localhost:3306/dojo_api"
+      JWT_SECRET: "8f3a1c9e4b7d2f6a0e5c8b1d4f7a2e9c6b3d0f8a5e2c9b6d3f0a7e4c1b8d5f2a"
+      UPLOAD_DIR: "/tmp/dojo-api-uploads"
 
     timeout-minutes: 60
     runs-on: ubuntu-latest
