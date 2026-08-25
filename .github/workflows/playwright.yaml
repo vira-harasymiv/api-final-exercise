@@ -30,6 +30,8 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       UPLOAD_DIR: ${{vars.UPLOAD_DIR}}
       BASE_URL: ${{vars.BASE_URL}}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL}}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD}}
 
     # Обмежує час виконання джобу 60 хвилинами, щоб уникнути нескінченного зависання
     # і зайвого витрачання хвилин GitHub Actions.
