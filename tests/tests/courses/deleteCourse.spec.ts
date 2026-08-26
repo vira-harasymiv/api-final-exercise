@@ -61,23 +61,51 @@ test.describe(
 test.describe(
   "DELETE /{courseId} - Delete a course without auth or admin permission - should be 401/403 error",
   {
-    tag: [
-      TAG.negative,
-      TAG.courses,
-      TAG.smoke,
-      TAG.regression,
-      TAG.permissions,
-    ],
+    tag: [TAG.negative, TAG.courses, TAG.regression, TAG.permissions],
   },
   () => {
     test.use({ isAuthorized: false });
+
+    let adminToken: string;
+    let courseId: string;
+
+    test.beforeAll(
+      "Create a new course",
+      async ({ coursesController, oauthController }) => {
+        adminToken = await oauthController.takeAdminToken();
+
+        const response = await test.step("Create a new course", async () => {
+          return await coursesController.createCourse(
+            { title: "New Course" + Math.floor(Math.random() * 1_000) },
+            {
+              headers: { Authorization: `Bearer ${adminToken}` },
+              failOnStatusCode: true,
+            },
+          );
+        });
+        const json = await response.json();
+        courseId = json.id;
+      },
+    );
+
+    test.afterAll(
+      "Delete the created course",
+      async ({ coursesController }) => {
+        await test.step("Delete the created course", async () => {
+          await coursesController.deleteCourseById(courseId, {
+            headers: { Authorization: `Bearer ${adminToken}` },
+            failOnStatusCode: true,
+          });
+        });
+      },
+    );
 
     test("Delete a course without authorization - should be 401 error", async ({
       coursesController,
     }) => {
       const response =
         await test.step("Delete a course without authorization", async () => {
-          return await coursesController.deleteCourseById("any course ID", {
+          return await coursesController.deleteCourseById(courseId, {
             failOnStatusCode: false,
           });
         });
@@ -96,7 +124,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to delete a course as a client with READ permission", async () => {
-          return await coursesController.deleteCourseById("any course ID", {
+          return await coursesController.deleteCourseById(courseId, {
             headers: { Authorization: `Bearer ${readClientToken}` },
             failOnStatusCode: false,
           });
@@ -116,7 +144,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to delete a course as a client with READ and WRITE permissions", async () => {
-          return await coursesController.deleteCourseById("any course ID", {
+          return await coursesController.deleteCourseById(courseId, {
             headers: { Authorization: `Bearer ${readWriteClientToken}` },
             failOnStatusCode: false,
           });
@@ -136,7 +164,7 @@ test.describe(
     }) => {
       const response =
         await test.step("Try to delete a course as a client with READ, WRITE, and ADMIN permissions", async () => {
-          return await coursesController.deleteCourseById("any course ID", {
+          return await coursesController.deleteCourseById(courseId, {
             headers: { Authorization: `Bearer ${readWriteAdminClientToken}` },
             failOnStatusCode: false,
           });

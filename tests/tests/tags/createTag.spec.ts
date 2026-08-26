@@ -147,7 +147,8 @@ test.describe(
           { name: tagName },
           { failOnStatusCode: true },
         );
-        tagId = (await response.json()).id;
+        const json = await response.json();
+        tagId = json.id;
       },
     );
 
