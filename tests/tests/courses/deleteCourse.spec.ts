@@ -52,6 +52,10 @@ test.describe(
         });
         await checkMandatoryHeaders(response);
         await checkNotFoundStatusCode(responseGet);
+        await test.step("Verify the error message in the response", async () => {
+          const jsonGet = await responseGet.json();
+          expect.soft(jsonGet.error).toBe("Course not found");
+        });
       });
     });
   },

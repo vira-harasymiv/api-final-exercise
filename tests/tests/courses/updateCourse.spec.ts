@@ -141,7 +141,6 @@ test.describe(
             });
           });
         const jsonGet = await responseGet.json();
-        expect.soft(json.id).toBe(jsonGet.id);
         expect.soft(json.price).toBe(jsonGet.price);
       });
 

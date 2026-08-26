@@ -36,27 +36,6 @@ paths: ["tests/**"]
 expect(response.status()).toBeLessThan(500);
 ```
 
-- **DO NOT write query params in url**. Use `params`option:
-
-```ts
-async getArticles(
-    params?: {
-      offset?: number;
-      limit?: number;
-      tag?: string;
-      author?: string;
-      favorited?: boolean;
-    },
-    options?: { failOnStatusCode?: boolean},
-  ) {
-    const response = await this.request.get(this.articleEndpoint, {
-      params: params,
-      failOnStatusCode: options?.failOnStatusCode,
-    });
-    return response;
-  }
-```
-
 - **DO NOT write** a lot this in parenthesis:
 
 ```ts

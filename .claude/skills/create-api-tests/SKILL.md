@@ -10,6 +10,18 @@ description: use it when you need to create api tests to cover features or bugs,
 
 - focus only on critical business scenarios and cover edge cases if I directly ask you about
 
+- **if endpoint contains query or path parameters**, use this skill
+  `.claude/skills/test-params/SKILL.md`
+
+- **If you test endpoints for updating (PUT and PATCH methods)**, use this skill
+  `.claude/kills/test-updating/SKILL.md`
+
+- **If you test endpoints for POST request**, use this skill
+  `.claude/skills/test-creating/SKILL.md`
+
+- **If you test endpoint for deleting**, use this skill
+  `.claude/skills/test-deleting`
+
 - use controllers for creating API tests. if you need to create a controller for test use skill:
   `.claude/skills/create-api-controller/SKILL.md`
 
