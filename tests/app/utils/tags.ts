@@ -13,4 +13,5 @@ export enum TAG {
   uploadFile = "@uploadFile",
   permissions = "@permissions",
   invalidDataTypes = "@invalidDataTypes",
+  tags = "@tags",
 }

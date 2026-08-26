@@ -32,7 +32,7 @@ export async function checkAcceptEncodingHeaders(response: APIResponse) {
   });
 }
 
-//Assert a 400 Bad Request response, including mandatory headers
+//Assert a 400 Bad Request response
 export async function checkBadStatusCode(response: APIResponse) {
   await test.step("Verify if the Status Code is 400 Bad Request", async () => {
     expect.soft(response.status()).toBe(400);
@@ -40,7 +40,7 @@ export async function checkBadStatusCode(response: APIResponse) {
   });
 }
 
-//Assert a 404 Not Found response, including mandatory headers
+//Assert a 404 Not Found response
 export async function checkNotFoundStatusCode(response: APIResponse) {
   await test.step("Verify if the Status Code is 404 Not Found", async () => {
     expect.soft(response.status()).toBe(404);
@@ -48,7 +48,7 @@ export async function checkNotFoundStatusCode(response: APIResponse) {
   });
 }
 
-//Assert a 401 Unauthorized response (uses Accept-Encoding headers, not the RSC ones)
+//Assert a 401 Unauthorized response
 export async function checkUnauthorizedStatusCode(response: APIResponse) {
   await test.step("Verify if the Status Code is 401 Unauthorized", async () => {
     expect.soft(response.status()).toBe(401);
@@ -56,7 +56,7 @@ export async function checkUnauthorizedStatusCode(response: APIResponse) {
   });
 }
 
-//Assert a 200 OK response, including mandatory headers
+//Assert a 200 OK response
 export async function checkOKStatusCode(response: APIResponse) {
   await test.step("Verify if the status Code is 200 OK", async () => {
     expect.soft(response.status()).toBe(200);
@@ -64,7 +64,7 @@ export async function checkOKStatusCode(response: APIResponse) {
   });
 }
 
-//Assert a 201 Created response, including mandatory headers
+//Assert a 201 Created respons
 export async function checkCreatedStatusCode(response: APIResponse) {
   await test.step("Verify if the status Code is 201 Created", async () => {
     expect.soft(response.status()).toBe(201);
@@ -72,11 +72,19 @@ export async function checkCreatedStatusCode(response: APIResponse) {
   });
 }
 
-//Assert a 403 Forbidden response, including mandatory headers
+//Assert a 403 Forbidden response
 export async function checkForbiddenStatusCode(response: APIResponse) {
   await test.step("Verify if the status Code is  403 Forbidden", async () => {
     expect.soft(response.status()).toBe(403);
     expect.soft(response.statusText()).toBe("Forbidden");
+  });
+}
+
+//Assert a 409 Conflict response
+export async function checkConflictStatusCode(response: APIResponse) {
+  await test.step("Verify if the status Code is 409 Conflict", async () => {
+    expect.soft(response.status()).toBe(409);
+    expect.soft(response.statusText()).toBe("Conflict");
   });
 }
 

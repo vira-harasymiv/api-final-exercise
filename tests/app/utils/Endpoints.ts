@@ -13,6 +13,9 @@ export class Endpoints {
   static readonly coursesEndpoint = this.baseEndpoint + "courses";
   static readonly categoriesEndpoint = this.baseEndpoint + "categories";
 
+  //Blog endpoints
+  static readonly tagsEndpoint = this.baseEndpoint + "tags";
+
   //Admin endpoints
   static readonly adminEndpoint = this.baseEndpoint + "admin/";
   static readonly adminUsersEndpoint = this.adminEndpoint + "users";

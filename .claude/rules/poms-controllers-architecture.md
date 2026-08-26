@@ -1,3 +1,0 @@
----
-paths: ["tests/app/controllers"]
----
