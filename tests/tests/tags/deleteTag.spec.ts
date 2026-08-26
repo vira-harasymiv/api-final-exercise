@@ -56,7 +56,7 @@ test.describe(
 //Negative test for deleting a tag by a non-existing ID
 test.describe(
   "DELETE /tags/{tagId} - delete tag with non-existing ID: negative tests",
-  { tag: [TAG.negative, TAG.regression, TAG.tags] },
+  { tag: [TAG.negative, TAG.regression, TAG.tags, TAG.nonExistingValues] },
   () => {
     //! The route does not catch Prisma's "record not found" error on delete, so a
     //! non-existing tagId currently produces an uncaught 500 with an empty body

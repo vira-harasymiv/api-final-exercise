@@ -64,7 +64,9 @@ test.describe(
 //Negative tests (downloading file using non-existing path)
 test.describe(
   "GET /uploads/{path} - download file: negative cases",
-  { tag: [TAG.negative, TAG.regression, TAG.uploadFile] },
+  {
+    tag: [TAG.negative, TAG.regression, TAG.uploadFile, TAG.nonExistingValues],
+  },
   () => {
     test("Download file using non-existing path - should be 404 error", async ({
       uploadController,

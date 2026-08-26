@@ -12,16 +12,17 @@ test.describe(
   "PATCH/admin/users/{userId} - update user info by admin: positive tests",
   { tag: [TAG.smoke, TAG.admin, TAG.regression] },
   () => {
-    //Payload for the test user
-    const userName = "New user" + Math.floor(Math.random() * 1_000);
-    const userEmail =
-      "newUser" + Math.floor(Math.random() * 1_000) + "@mail.com";
-    const userPassword = "Password123";
     let userId: string;
+    let userName: string;
+    let userEmail: string;
+    const userPassword = "Password123";
 
-    test.beforeAll(
+    test.beforeEach(
       "Prepare test data: register a new user",
       async ({ authController }) => {
+        userName = "New user" + Math.floor(Math.random() * 1_000);
+        userEmail = "newUser" + Math.floor(Math.random() * 1_000) + "@mail.com";
+
         const response = await test.step("Register as a new user", async () => {
           return await authController.registerUser(
             { name: userName, email: userEmail, password: userPassword },
@@ -52,9 +53,15 @@ test.describe(
       await checkOKStatusCode(response);
       const json = await response.json();
       await checkSchema(json, userSchema);
+
       await test.step("Check if the user's name has been updated", async () => {
         expect.soft(json.name).toBe(updatedName);
+      });
+
+      await test.step("Check if other fields remain unchanged", async () => {
+        expect.soft(json.email).toBe(userEmail);
         expect.soft(json.id).toBe(userId);
+        expect.soft(json.isActive).toBe(true);
       });
     });
 
@@ -76,11 +83,18 @@ test.describe(
 
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
+
       const json = await response.json();
       await checkSchema(json, userSchema);
+
       await test.step("Check if the user's email has been updated", async () => {
         expect.soft(json.email).toBe(updatedEmail);
+      });
+
+      await test.step("Check if other fields remain unchanged", async () => {
+        expect.soft(json.name).toBe(userName);
         expect.soft(json.id).toBe(userId);
+        expect.soft(json.isActive).toBe(true);
       });
     });
 
@@ -97,11 +111,18 @@ test.describe(
 
       await checkMandatoryHeaders(response);
       await checkOKStatusCode(response);
+
       const json = await response.json();
       await checkSchema(json, userSchema);
+
       await test.step("Check if the user's state has been updated", async () => {
         expect.soft(json.isActive).toBe(false);
+      });
+
+      await test.step("Check if other fields remain unchanged", async () => {
+        expect.soft(json.name).toBe(userName);
         expect.soft(json.id).toBe(userId);
+        expect.soft(json.email).toBe(userEmail);
       });
     });
 

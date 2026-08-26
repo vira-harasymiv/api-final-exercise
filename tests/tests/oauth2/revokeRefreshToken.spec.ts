@@ -93,20 +93,22 @@ test.describe(
       );
     }
 
-    test("Verify revoking non-existing refresh token", async ({
-      revokeController,
-    }) => {
-      const response =
-        await test.step("Try to revoke non-existing refresh token", async () => {
-          return await revokeController.revokeInvalidToken({
-            token: "dsdsdsdjskdjskd",
+    test(
+      "Verify revoking non-existing refresh token",
+      { tag: [TAG.nonExistingValues] },
+      async ({ revokeController }) => {
+        const response =
+          await test.step("Try to revoke non-existing refresh token", async () => {
+            return await revokeController.revokeInvalidToken({
+              token: "non-existing token",
+            });
           });
-        });
-      await checkMandatoryHeaders(response);
-      await checkNotFoundStatusCode(response);
-      const json = await response.json();
-      expect.soft(json.error).toBe("Token not found");
-    });
+        await checkMandatoryHeaders(response);
+        await checkNotFoundStatusCode(response);
+        const json = await response.json();
+        expect.soft(json.error).toBe("Token not found");
+      },
+    );
   },
 );
 

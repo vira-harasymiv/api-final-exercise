@@ -16,14 +16,17 @@ test.describe(
   "PATCH /courses/{courseId} - Update a course: should be successful",
   { tag: [TAG.courses, TAG.smoke, TAG.regression] },
   () => {
-    const courseTitle = "New Course" + Math.floor(Math.random() * 1_000);
-    const categoryName = "New Category" + Math.floor(Math.random() * 1_000);
+    let courseTitle: string;
+    let categoryName: string;
     let courseId: string;
     let categoryId: string;
 
     test.beforeEach(
       "Prepare test data: create the course and category",
       async ({ coursesController, categoriesController }) => {
+        courseTitle = "New Course" + Math.floor(Math.random() * 1_000);
+        categoryName = "New Category" + Math.floor(Math.random() * 1_000);
+
         const responseCourseCreate =
           await test.step("Create a new resource", async () => {
             return await coursesController.createCourse(
@@ -76,6 +79,7 @@ test.describe(
         .withAuthorRole("Test")
         .withAuthorName("Test Name")
         .build();
+
       const responseUpdate =
         await test.step("Update all properties of a course", async () => {
           return await coursesController.updateCourse(courseId, courseBuilder, {
@@ -111,15 +115,13 @@ test.describe(
       });
     });
 
-    test("Update several properties - should be successful", async ({
+    test("Update only price - other fields remain unchanged", async ({
       coursesController,
     }) => {
-      const courseBuilder = new CourseBuilder()
-        .withPrice(100.0)
-        .withCategoryIds([categoryId])
-        .build();
+      const price = 100;
+      const courseBuilder = new CourseBuilder().withPrice(price).build();
       const responseUpdate =
-        await test.step("Update several properties of a course", async () => {
+        await test.step("Update only price of a course", async () => {
           return await coursesController.updateCourse(courseId, courseBuilder, {
             failOnStatusCode: true,
           });
@@ -131,7 +133,7 @@ test.describe(
       const json = await responseUpdate.json();
       await checkSchema(json, courseCreatedSchema);
 
-      await test.step("Verify if properties were updated", async () => {
+      await test.step("Verify if a price has been updated", async () => {
         const responseGet =
           await test.step("Get the updated course", async () => {
             return await coursesController.getCourseById(courseId, {
@@ -139,9 +141,22 @@ test.describe(
             });
           });
         const jsonGet = await responseGet.json();
+        expect.soft(json.id).toBe(jsonGet.id);
         expect.soft(json.price).toBe(jsonGet.price);
-        expect.soft(categoryId).toBe(jsonGet.categories[0].id);
-        expect.soft(categoryName).toBe(jsonGet.categories[0].name);
+      });
+
+      await test.step("Verify if other fields remain unchanged", async () => {
+        expect.soft(json.id).toBe(courseId);
+        expect.soft(json.title).toBe(courseTitle);
+        expect.soft(json.description).toBeNull;
+        expect.soft(json.imageUrl).toBeNull;
+        expect.soft(json.price).toBe(price.toString());
+        expect.soft(json.outcomes).toBeNull;
+        expect.soft(json.requirements).toBeNull;
+        expect.soft(json.authorName).toBeNull;
+        expect.soft(json.authorRole).toBeNull;
+        expect.soft(categoryId).toBeNull;
+        expect.soft(categoryName).toBeNull;
       });
     });
   },

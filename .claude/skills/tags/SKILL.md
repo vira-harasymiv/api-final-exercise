@@ -11,3 +11,24 @@ description: use it when you need to create tags for api tests
 - **For writing tests for checking permissions**, use the existing `@permissions` tag
 
 - **For negative tests with using invalid data types**, use the existing `@invalidDataTypes` tag
+
+- **For negative tests with using non-existing values**, use the existing `@nonExistingValues` tag. For example:
+
+```ts
+test(
+  "Verify revoking non-existing refresh token",
+  { tag: [TAG.nonExistingValues] },
+  async ({ revokeController }) => {
+    const response =
+      await test.step("Try to revoke non-existing refresh token", async () => {
+        return await revokeController.revokeInvalidToken({
+          token: "non-existing token",
+        });
+      });
+    await checkMandatoryHeaders(response);
+    await checkNotFoundStatusCode(response);
+    const json = await response.json();
+    expect.soft(json.error).toBe("Token not found");
+  },
+);
+```

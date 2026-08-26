@@ -14,4 +14,6 @@ export enum TAG {
   permissions = "@permissions",
   invalidDataTypes = "@invalidDataTypes",
   tags = "@tags",
+  posts = "@posts",
+  nonExistingValues = "@nonExistingValues",
 }
