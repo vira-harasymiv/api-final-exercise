@@ -51,3 +51,6 @@ test-results
 playwright.env
 /firefox/
 .playwright/
+
+# k6 performance test HTML reports
+/tests/tests/perfomance-tests/reports/*.html

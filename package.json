@@ -11,7 +11,13 @@
     "db:seed": "npx tsx prisma/seed.ts",
     "db:push": "npx prisma db push",
     "db:studio": "npx prisma studio",
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "test:perf:smoke": "k6 run tests/tests/perfomance-tests/scenarios/purchaseCourse-smoke.ts",
+    "test:perf:average": "k6 run tests/tests/perfomance-tests/scenarios/purchaseCourse-average.ts",
+    "test:perf:stress": "k6 run tests/tests/perfomance-tests/scenarios/purchaseCourse-stress.ts",
+    "test:perf:soak": "k6 run tests/tests/perfomance-tests/scenarios/purchaseCourse-soak.ts",
+    "test:perf:spike": "k6 run tests/tests/perfomance-tests/scenarios/purchaseCourse-spike.ts",
+    "test:perf:breakpoint": "k6 run tests/tests/perfomance-tests/scenarios/purchaseCourse-breakpoint.ts"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.6.0",
@@ -31,6 +37,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@playwright/test": "^1.59.1",
+    "@types/k6": "^2.0.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
