@@ -3,16 +3,21 @@ import { OauthController } from "../OauthController";
 import { ClientsController } from "../ClientsController";
 import { passwordGrantPayload } from "../../../tests/oauth2/testData/payloads";
 import { UserInfoController } from "../UseInfoController";
+import { CoursesController } from "../CoursesController";
+import { CourseBuilder } from "../../utils/builders/CourseBuilder";
+import { ChapterBuilder } from "../../utils/builders/ChapterBuilder";
 
 export class ApiClient {
   private oauthController: OauthController;
   private clientsController: ClientsController;
   private userInfoController: UserInfoController;
+  private coursesController: CoursesController;
 
   constructor(request: APIRequestContext) {
     this.oauthController = new OauthController(request);
     this.clientsController = new ClientsController(request);
     this.userInfoController = new UserInfoController(request);
+    this.coursesController = new CoursesController(request);
   }
 
   //Login to the app using credentials of the created new client
@@ -73,5 +78,55 @@ export class ApiClient {
     });
     const jsonGet = await responseGet.json();
     return jsonGet;
+  }
+
+  //Creates a published course with a non-empty description/image and the given price, plus a
+  //single published chapter - the minimum state a course must be in to be purchasable
+  async createPurchasableCourse(title: string, price: number) {
+    //Create a new course
+    const responseCreate = await this.coursesController.createCourse(
+      { title: title },
+      { failOnStatusCode: true },
+    );
+    const jsonCreate = await responseCreate.json();
+    const courseId: string = jsonCreate.id;
+
+    const updateCourseBody = new CourseBuilder()
+      .withDescription("Purchasable course description")
+      .withImageUrl("https://freecatphotoapp.com")
+      .withPrice(price)
+      .build();
+
+    //Update this course so that the description, image URL, price are not empty
+    await this.coursesController.updateCourse(courseId, updateCourseBody, {
+      failOnStatusCode: true,
+    });
+
+    //Add a chapter to the updated course
+    const responseChapter = await this.coursesController.addChapterToCourse(
+      courseId,
+      { title: "Chapter 1" },
+      { failOnStatusCode: true },
+    );
+    const jsonChapter = await responseChapter.json();
+    const chapterId: string = jsonChapter.id;
+
+    const chapterPayload = new ChapterBuilder().withIsPublished(true).build();
+
+    //Publish the added chapter
+    await this.coursesController.updateChapter(
+      courseId,
+      chapterId,
+      chapterPayload,
+      {
+        failOnStatusCode: true,
+      },
+    );
+
+    //Publish the course
+    await this.coursesController.publishCourseById(courseId, {
+      failOnStatusCode: true,
+    });
+    return { courseId, chapterId };
   }
 }
