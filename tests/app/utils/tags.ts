@@ -16,4 +16,7 @@ export enum TAG {
   tags = "@tags",
   posts = "@posts",
   nonExistingValues = "@nonExistingValues",
+  promoCodes = "@promoCodes",
+  purchases = "@purchases",
+  learningPaths = "@learningPaths",
 }

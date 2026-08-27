@@ -11,6 +11,9 @@ import { AdminController } from "../../app/controllers/AdminController";
 import { UploadController } from "../../app/controllers/UploadController";
 import { TagsController } from "../../app/controllers/TagsController";
 import { PostsController } from "../../app/controllers/PostsController";
+import { PromoCodesController } from "../../app/controllers/PromoCodesController";
+import { PurchasesController } from "../../app/controllers/PurchasesController";
+import { LearningPathsController } from "../../app/controllers/LearningPathsController";
 export { expect } from "@playwright/test";
 
 type Fixtures = {
@@ -26,6 +29,9 @@ type Fixtures = {
   uploadController: UploadController;
   tagsController: TagsController;
   postsController: PostsController;
+  promoCodesController: PromoCodesController;
+  purchasesController: PurchasesController;
+  learningPathsController: LearningPathsController;
 };
 
 //Second fixture layer: extends the base `test` (fixture.ts) with one ready-to-use
@@ -78,5 +84,17 @@ export const test = base.extend<Fixtures>({
 
   postsController: async ({ request }, use) => {
     await use(new PostsController(request));
+  },
+
+  promoCodesController: async ({ request }, use) => {
+    await use(new PromoCodesController(request));
+  },
+
+  purchasesController: async ({ request }, use) => {
+    await use(new PurchasesController(request));
+  },
+
+  learningPathsController: async ({ request }, use) => {
+    await use(new LearningPathsController(request));
   },
 });

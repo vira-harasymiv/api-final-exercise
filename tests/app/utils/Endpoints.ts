@@ -13,6 +13,12 @@ export class Endpoints {
   static readonly coursesEndpoint = this.baseEndpoint + "courses";
   static readonly categoriesEndpoint = this.baseEndpoint + "categories";
 
+  //Learning paths endpoint
+  static readonly learningPathsEndpoint = this.baseEndpoint + "learning-paths";
+
+  //Purchases endpoint
+  static readonly purchasesEndpoint = this.baseEndpoint + "purchases";
+
   //Blog endpoints
   static readonly tagsEndpoint = this.baseEndpoint + "tags";
   static readonly postsEndpoint = this.baseEndpoint + "posts";
@@ -20,6 +26,7 @@ export class Endpoints {
   //Admin endpoints
   static readonly adminEndpoint = this.baseEndpoint + "admin/";
   static readonly adminUsersEndpoint = this.adminEndpoint + "users";
+  static readonly adminCoursesEndpoint = this.adminEndpoint + "courses";
 
   //Upload endpoint
   static readonly uploadFieEndpoint = this.baseEndpoint + "upload";
