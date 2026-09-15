@@ -40,8 +40,10 @@ test.describe(
     test.afterAll(
       "Clear test data: delete the created category",
       async ({ categoriesController }) => {
-        await categoriesController.deleteCategory(categoryId, {
-          failOnStatusCode: true,
+        await test.step("Delete the created category", async () => {
+          await categoriesController.deleteCategory(categoryId, {
+            failOnStatusCode: true,
+          });
         });
       },
     );

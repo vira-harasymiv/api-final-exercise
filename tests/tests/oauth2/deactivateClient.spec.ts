@@ -8,6 +8,7 @@ import {
   checkOKStatusCode,
   checkUnauthorizedStatusCode,
 } from "../../app/utils/expect-helpers";
+import { prisma } from "@/lib/prisma";
 
 //Positive tests for checking the client deactivating
 test.describe(

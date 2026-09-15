@@ -19,6 +19,16 @@ test.describe(
   "POST /clients - Create a new client: should be successful",
   { tag: [TAG.oauth, TAG.smoke, TAG.regression] },
   () => {
+    let createdClientId: string;
+
+    test.afterEach("Delete the created client", async ({}) => {
+      await test.step("Delete the created client", async () => {
+        await prisma.oAuthClient.delete({
+          where: { id: createdClientId },
+        });
+      });
+    });
+
     for (const {
       title,
       stepLabel,
@@ -37,6 +47,8 @@ test.describe(
         await checkMandatoryHeaders(response);
 
         const json = await response.json();
+        createdClientId = json.id;
+
         await checkSchema(json, oauthCreatedClientSchema);
 
         await test.step("Verify if the item has been created", async () => {
