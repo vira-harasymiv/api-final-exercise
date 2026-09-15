@@ -1,25 +1,26 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
+import { prisma } from "@/lib/prisma";
 
-test('POST /api/courses: create a new course with admin token', async ({
+test("POST /api/courses: create a new course with admin token", async ({
   request,
 }) => {
   // 1. Get admin token via password grant
-  const tokenResponse = await request.post('/api/oauth/token', {
+  const tokenResponse = await request.post("/api/oauth/token", {
     data: {
-      grant_type: 'password',
-      email: 'admin@dojo.api',
-      password: 'Password1',
+      grant_type: "password",
+      email: "admin@dojo.api",
+      password: "Password1",
     },
   });
-  
+
   expect(tokenResponse.status()).toBe(200);
   const { access_token: adminToken } = await tokenResponse.json();
 
   // 2. Create a new course
-  const courseRes = await request.post('/api/courses', {
+  const courseRes = await request.post("/api/courses", {
     headers: { Authorization: `Bearer ${adminToken}` },
     data: {
-      title: 'Advanced TypeScript',
+      title: "Advanced TypeScript",
     },
   });
 
@@ -27,15 +28,22 @@ test('POST /api/courses: create a new course with admin token', async ({
 
   expect(courseRes.status()).toBe(201);
   const course = await courseRes.json();
-  expect(course.title).toBe('Advanced TypeScript');
+  expect(course.title).toBe("Advanced TypeScript");
   expect(course.id).toBeTruthy();
+
+  //Verify the persistent state in DB
+  const createdCourse = await prisma.course.findFirst({
+    where: { id: course.id },
+  });
+  expect(createdCourse).not.toBeNull();
+  expect(createdCourse?.title).toBe("Advanced TypeScript");
 
   // 3. Update course with required fields for publishing
   const updateRes = await request.patch(`/api/courses/${course.id}`, {
     headers: { Authorization: `Bearer ${adminToken}` },
     data: {
-      description: 'Master advanced TypeScript concepts',
-      imageUrl: 'https://example.com/image.jpg',
+      description: "Master advanced TypeScript concepts",
+      imageUrl: "https://example.com/image.jpg",
       price: 99.99,
     },
   });
@@ -46,7 +54,7 @@ test('POST /api/courses: create a new course with admin token', async ({
   const chapterRes = await request.post(`/api/courses/${course.id}/chapters`, {
     headers: { Authorization: `Bearer ${adminToken}` },
     data: {
-      title: 'Chapter 1: Generics',
+      title: "Chapter 1: Generics",
     },
   });
 

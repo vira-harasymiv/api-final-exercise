@@ -12,6 +12,7 @@ import {
 import { promoCodeListItemSchema } from "../../app/json-schemas/promoCodeSchemas";
 import { PromoCodeBuilder } from "../../app/utils/builders/PromoCodeBuilder";
 import { futureDate, randomCode } from "./testData/testData";
+import { prisma } from "@/lib/prisma";
 
 //Positive tests for creating a promo code for a course by an admin
 test.describe(
@@ -55,10 +56,11 @@ test.describe(
       promoCodesController,
     }) => {
       const code = randomCode("REQ");
+      const expiresAt = futureDate();
       const data = new PromoCodeBuilder()
         .withCode(code)
         .withDiscountPercent(10)
-        .withExpiresAt(futureDate())
+        .withExpiresAt(expiresAt)
         .build();
 
       const response = await test.step("Create a new promo code", async () => {
@@ -95,17 +97,32 @@ test.describe(
         expect.soft(created).toBeTruthy();
         expect.soft(created.code).toBe(code);
       });
+
+      await test.step("Check the created promo code in db", async () => {
+        const createdPromoCode = await prisma.promoCode.findFirst({
+          where: { id: promoCodeId },
+        });
+        expect.soft(createdPromoCode).not.toBeNull;
+        expect.soft(createdPromoCode?.code).toBe(code);
+        expect.soft(createdPromoCode?.courseId).toBe(courseId);
+        expect.soft(createdPromoCode?.discountPercent).toBe(10);
+        expect.soft(createdPromoCode?.maxUses).toBeNull;
+        expect.soft(createdPromoCode?.currentUses).toBe(0);
+        expect.soft(createdPromoCode?.isActive).toBe(true);
+        expect.soft(createdPromoCode?.expiresAt.toISOString()).toBe(expiresAt);
+      });
     });
 
     test("Create a promo code with all fields, including maxUses - should be successful", async ({
       promoCodesController,
     }) => {
       const code = randomCode("FULL");
+      const expiresAt = futureDate();
       const data = new PromoCodeBuilder()
         .withCode(code)
         .withDiscountPercent(50)
         .withMaxUses(100)
-        .withExpiresAt(futureDate())
+        .withExpiresAt(expiresAt)
         .build();
 
       const response =
@@ -127,6 +144,20 @@ test.describe(
         expect.soft(json.maxUses).toBe(100);
         expect.soft(json.currentUses).toBe(0);
         expect.soft(json.isActive).toBe(true);
+      });
+
+      await test.step("Check the created promo code in db", async () => {
+        const createdPromoCode = await prisma.promoCode.findFirst({
+          where: { id: promoCodeId },
+        });
+        expect.soft(createdPromoCode).not.toBeNull;
+        expect.soft(createdPromoCode?.code).toBe(code);
+        expect.soft(createdPromoCode?.courseId).toBe(courseId);
+        expect.soft(createdPromoCode?.discountPercent).toBe(50);
+        expect.soft(createdPromoCode?.maxUses).toBe(100);
+        expect.soft(createdPromoCode?.currentUses).toBe(0);
+        expect.soft(createdPromoCode?.isActive).toBe(true);
+        expect.soft(createdPromoCode?.expiresAt.toISOString()).toBe(expiresAt);
       });
     });
   },

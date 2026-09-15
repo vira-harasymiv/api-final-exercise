@@ -12,6 +12,7 @@ import {
 import { postSchema } from "../../app/json-schemas/postSchemas";
 import { PostBuilder } from "../../app/utils/builders/PostBuilder";
 import { invalidDataTypesForTitle, tooShortTitles } from "./testData/testData";
+import { prisma } from "@/lib/prisma";
 
 //Positive tests for creating a post by an admin
 test.describe(
@@ -77,6 +78,21 @@ test.describe(
         expect.soft(json.publishedAt).toBeNull();
         expect.soft(json.tags).toEqual([]);
       });
+
+      await test.step("Verify the created post in db", async () => {
+        const createdPost = await prisma.post.findFirst({
+          where: { id: postId },
+        });
+        expect.soft(createdPost).not.toBe(null);
+        expect.soft(createdPost?.title).toBe(title);
+        expect.soft(createdPost?.excerpt).toBe(null);
+        expect.soft(createdPost?.content).toBe(null);
+        expect.soft(createdPost?.imageUrl).toBe(null);
+        expect.soft(createdPost?.isPublished).toBe(false);
+        expect.soft(createdPost?.publishedAt).toBe(null);
+        expect.soft(createdPost?.updatedAt).not.toBe(null);
+        expect.soft(createdPost?.createdAt).not.toBe(null);
+      });
     });
 
     test("Create a published post with all fields, including a tag - should be successful", async ({
@@ -115,6 +131,21 @@ test.describe(
         expect.soft(json.publishedAt).toBeTruthy();
         expect.soft(json.tags).toHaveLength(1);
         expect.soft(json.tags[0].id).toBe(tagId);
+      });
+
+      await test.step("Verify the created post in db", async () => {
+        const createdPost = await prisma.post.findFirst({
+          where: { id: postId },
+        });
+        expect.soft(createdPost).not.toBe(null);
+        expect.soft(createdPost?.title).toBe(title);
+        expect.soft(createdPost?.excerpt).toBe("A short excerpt");
+        expect.soft(createdPost?.content).toBe("Full post content");
+        expect.soft(createdPost?.imageUrl).toBe("/api/uploads/post-image.png");
+        expect.soft(createdPost?.isPublished).toBe(true);
+        expect.soft(createdPost?.publishedAt).not.toBe(null);
+        expect.soft(createdPost?.updatedAt).not.toBe(null);
+        expect.soft(createdPost?.createdAt).not.toBe(null);
       });
     });
 

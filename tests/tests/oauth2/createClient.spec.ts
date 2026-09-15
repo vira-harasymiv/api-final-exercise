@@ -12,6 +12,7 @@ import {
 import { oauthCreatedClientSchema } from "../../app/json-schemas/oauthSchemas";
 import { createClientPositiveCases } from "./testData/testDataPositiveCases";
 import { invalidDataTypes } from "./testData/testData";
+import { prisma } from "@/lib/prisma";
 
 //Positive cases for creating a new client
 test.describe(
@@ -44,6 +45,14 @@ test.describe(
             json.clientSecret,
           );
           expect(json.clientId).toBe(result.sub);
+        });
+
+        await test.step("Verify the created client in db", async () => {
+          const createdClient = await prisma.oAuthClient.findFirst({
+            where: { clientId: json.clientId },
+          });
+          expect.soft(createdClient).not.toBeNull();
+          expect.soft(createdClient?.name).toBe(name);
         });
       });
     }

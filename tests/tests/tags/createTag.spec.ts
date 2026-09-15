@@ -15,6 +15,7 @@ import {
   invalidDataTypesForName,
   tooShortNamesForName,
 } from "./testData/testData";
+import { prisma } from "@/lib/prisma";
 
 //Positive tests for creating a tag by an admin
 test.describe(
@@ -52,6 +53,15 @@ test.describe(
       await test.step("Verify the tag name and slug in the response", async () => {
         expect.soft(json.name).toBe(name);
         expect.soft(json.slug).toBe(name.toLowerCase().replace(/\s+/g, "-"));
+      });
+
+      await test.step("Verify the created tag fields in db", async () => {
+        const createdTag = await prisma.tag.findFirst({ where: { id: tagId } });
+        expect.soft(createdTag).not.toBeNull;
+        expect.soft(createdTag?.name).toBe(name);
+        expect
+          .soft(createdTag?.slug)
+          .toBe(name.toLowerCase().replace(/\s+/g, "-"));
       });
     });
 

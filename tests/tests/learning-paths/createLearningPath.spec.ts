@@ -16,6 +16,7 @@ import {
   invalidTitleDataTypes,
   invalidTitles,
 } from "./testData/testData";
+import { prisma } from "@/lib/prisma";
 
 //Positive tests for creating a learning path with nested resources by an admin
 test.describe(
@@ -47,10 +48,14 @@ test.describe(
 
     test("Create a learning path with only the required fields - should be successful with defaults applied", async ({
       learningPathsController,
+      randomString,
     }) => {
+      const uniqueTitle =
+        "Learning path only with required fields" + randomString;
+      const uniqueInstructor = "Instructor" + randomString;
       const data = new LearningPathBuilder()
-        .withTitle("Required Fields LP")
-        .withInstructor({ name: "Jane Doe" })
+        .withTitle(uniqueTitle)
+        .withInstructor({ name: uniqueInstructor })
         .build();
 
       const response =
@@ -64,6 +69,7 @@ test.describe(
       await checkCreatedStatusCode(response);
 
       const json = await response.json();
+
       await checkSchema(
         json,
         learningPathSchema,
@@ -71,24 +77,42 @@ test.describe(
       );
 
       await test.step("Verify the fields and defaults in the response", async () => {
-        expect.soft(json.title).toBe("Required Fields LP");
+        expect.soft(json.title).toBe(uniqueTitle);
         expect.soft(json.description).toBeNull();
         expect.soft(json.isPublished).toBe(false);
         expect.soft(json.modules).toEqual([]);
         expect.soft(json.categories).toEqual([]);
         expect.soft(json.video).toBeNull();
         expect.soft(json.certificate).toBeNull();
-        expect.soft(json.instructor.name).toBe("Jane Doe");
+        expect.soft(json.instructor.name).toBe(uniqueInstructor);
         expect.soft(json.instructor.bio).toBeNull();
+      });
+
+      await test.step("Check the created learning path in db", async () => {
+        const learningPath = await prisma.learningPath.findFirst({
+          where: { id: json.id },
+        });
+        expect.soft(learningPath).not.toBeNull();
+        expect.soft(learningPath?.title).toBe(uniqueTitle);
+        expect
+          .soft(learningPath?.slug)
+          .toBe(uniqueTitle.toLowerCase().replace(/\s+/g, "-"));
+        expect.soft(learningPath?.description).toBe(null);
+        expect.soft(learningPath?.isPublished).toBe(false);
+        expect.soft(learningPath?.videoId).toBe(null);
+        expect.soft(learningPath?.instructorId).toBe(json.instructor.id);
       });
     });
 
     test("Create a learning path with all fields - should be successful", async ({
       learningPathsController,
+      randomString,
     }) => {
+      const uniqueTitle = "Full LP" + randomString;
+      const uniqueDescription = "A complete learning path" + randomString;
       const data = new LearningPathBuilder()
-        .withTitle("Full LP")
-        .withDescription("A complete learning path")
+        .withTitle(uniqueTitle)
+        .withDescription(uniqueDescription)
         .withModules([{ title: "Module 1", description: "Intro", position: 1 }])
         .withCategoryIds([categoryId])
         .withVideo({ title: "Intro video", videoId: "dQw4w9WgXcQ" })
@@ -115,6 +139,7 @@ test.describe(
       await checkCreatedStatusCode(response);
 
       const json = await response.json();
+
       await checkSchema(
         json,
         learningPathSchema,
@@ -122,8 +147,8 @@ test.describe(
       );
 
       await test.step("Verify all the fields in the response", async () => {
-        expect.soft(json.title).toBe("Full LP");
-        expect.soft(json.description).toBe("A complete learning path");
+        expect.soft(json.title).toBe(uniqueTitle);
+        expect.soft(json.description).toBe(uniqueDescription);
         expect.soft(json.modules).toHaveLength(1);
         expect.soft(json.modules[0].title).toBe("Module 1");
         expect.soft(json.categories).toHaveLength(1);
@@ -132,6 +157,32 @@ test.describe(
         expect.soft(json.certificate.name).toBe("Completion Certificate");
         expect.soft(json.instructor.name).toBe("John Smith");
         expect.soft(json.instructor.bio).toBe("Senior instructor");
+      });
+
+      await test.step("Check the created learning path in db", async () => {
+        const learningPath = await prisma.learningPath.findFirst({
+          where: { id: json.id },
+        });
+        expect.soft(learningPath).not.toBeNull();
+        expect.soft(learningPath?.title).toBe(uniqueTitle);
+        expect
+          .soft(learningPath?.slug)
+          .toBe(uniqueTitle.toLowerCase().replace(/\s+/g, "-"));
+        expect.soft(learningPath?.description).toBe(uniqueDescription);
+        expect.soft(learningPath?.isPublished).toBe(false);
+        expect.soft(learningPath?.videoId).toBe(json.video.id);
+        expect.soft(learningPath?.instructorId).toBe(json.instructor.id);
+      });
+
+      await test.step("Check learning path module in db", async () => {
+        const learningPathModule = await prisma.learningPathModule.findFirst({
+          where: { id: json.modules[0].id },
+        });
+        expect.soft(learningPathModule).not.toBeNull;
+        expect.soft(learningPathModule?.title).toBe("Module 1");
+        expect.soft(learningPathModule?.description).toBe("Intro");
+        expect.soft(learningPathModule?.position).toBe(1);
+        expect.soft(learningPathModule?.learningPathId).toBe(json.id);
       });
     });
   },

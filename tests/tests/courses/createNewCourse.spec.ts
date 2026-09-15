@@ -11,6 +11,7 @@ import {
 } from "../../app/utils/expect-helpers";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
 import { invalidDataTypes } from "./testData/testData";
+import { prisma } from "@/lib/prisma";
 
 //Positive test for creating course
 test.describe(
@@ -18,7 +19,7 @@ test.describe(
   { tag: [TAG.courses, TAG.smoke, TAG.regression] },
   () => {
     let courseId: string;
-    const title = "New Course";
+    const title = "New Course" + Math.floor(Math.random() * 1_000);
 
     test("Create a course by admin - should be successful", async ({
       coursesController,
@@ -49,6 +50,14 @@ test.describe(
         const { categories, chapters, attachments, ...expectedJson } =
           jsonCreated;
         expect.soft(json).toMatchObject(expectedJson);
+      });
+
+      await test.step("Check the created course in db", async () => {
+        const createdCourse = await prisma.course.findFirst({
+          where: { id: courseId },
+        });
+        expect.soft(createdCourse).not.toBeNull();
+        expect.soft(createdCourse?.title).toBe(title);
       });
     });
   },

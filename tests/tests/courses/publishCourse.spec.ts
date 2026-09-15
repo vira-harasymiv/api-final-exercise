@@ -12,6 +12,7 @@ import {
 } from "../../app/utils/expect-helpers";
 import { TAG } from "../../app/utils/tags";
 import { courseCreatedSchema } from "../../app/json-schemas/courseSchemas";
+import { prisma } from "@/lib/prisma";
 
 //Positive and negative tests of publish/unpublish a course
 test.describe("PATCH /courses/{courseId}/publish - publish course: positive tests", () => {
@@ -243,6 +244,15 @@ test.describe("PATCH /courses/{courseId}/publish - publish course: positive test
         expect.soft(jsonGet.description.length).toBeGreaterThan(0);
         expect.soft(jsonGet.imageUrl.length).toBeGreaterThan(0);
         expect.soft(jsonGet.price.length).toBeGreaterThan(0);
+      });
+
+      //Verify if isPublished = true in db
+      await test.step("Check if the isPublished = true in db", async () => {
+        const publishedCourse = await prisma.course.findFirst({
+          where: { id: validCourseId },
+        });
+        expect.soft(publishedCourse).not.toBeNull();
+        expect.soft(publishedCourse?.isPublished).toBe(true);
       });
     },
   );
