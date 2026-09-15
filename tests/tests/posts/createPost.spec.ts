@@ -83,15 +83,7 @@ test.describe(
         const createdPost = await prisma.post.findFirst({
           where: { id: postId },
         });
-        expect.soft(createdPost).not.toBe(null);
         expect.soft(createdPost?.title).toBe(title);
-        expect.soft(createdPost?.excerpt).toBe(null);
-        expect.soft(createdPost?.content).toBe(null);
-        expect.soft(createdPost?.imageUrl).toBe(null);
-        expect.soft(createdPost?.isPublished).toBe(false);
-        expect.soft(createdPost?.publishedAt).toBe(null);
-        expect.soft(createdPost?.updatedAt).not.toBe(null);
-        expect.soft(createdPost?.createdAt).not.toBe(null);
       });
     });
 

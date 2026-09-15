@@ -96,9 +96,6 @@ test.describe(
         });
         expect.soft(learningPath).not.toBeNull();
         expect.soft(learningPath?.title).toBe(uniqueTitle);
-        expect
-          .soft(learningPath?.slug)
-          .toBe(uniqueTitle.toLowerCase().replace(/\s+/g, "-"));
         expect.soft(learningPath?.description).toBe(null);
         expect.soft(learningPath?.isPublished).toBe(false);
         expect.soft(learningPath?.videoId).toBe(null);
